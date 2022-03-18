@@ -1,6 +1,12 @@
 services:
+    OHMedia\WysiwygBundle\Service\Wysiwyg:
+        arguments: ["@twig.loader", "%oh_media_wysiwyg.allowed_tags%"]
+
+    oh_media_wysiwyg.wysiwyg:
+        alias: OHMedia\WysiwygBundle\Service\Wysiwyg
+
     OHMedia\WysiwygBundle\Form\Type\WysiwygType:
-        arguments: ["%oh_media_wysiwyg.wysiwyg.sitekey%", "%oh_media_wysiwyg.wysiwyg.theme%", "%oh_media_wysiwyg.wysiwyg.size%"]
+        arguments: ["%oh_media_wysiwyg.allowed_tags%"]
         tags:
             - { name: form.type }
 
@@ -8,7 +14,7 @@ services:
         alias: OHMedia\WysiwygBundle\Form\Type\WysiwygType
 
     OHMedia\WysiwygBundle\Validator\WysiwygValidator:
-        arguments: ["@request_stack", "%oh_media_wysiwyg.wysiwyg.secretkey%"]
+        arguments: ["@oh_media_wysiwyg.wysiwyg"]
         tags:
             - { name: validator.constraint_validator }
 
