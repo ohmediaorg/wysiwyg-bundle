@@ -1,0 +1,12 @@
+services:
+    OHMedia\WysiwygBundle\Service\Wysiwyg:
+        arguments: ["@doctrine.orm.entity_manager"]
+    
+    oh_media_wysiwyg.wysiwyg:
+        alias: OHMedia\WysiwygBundle\Service\Wysiwyg
+
+    oh_media_wysiwyg.twig_extension:
+        class: OHMedia\WysiwygBundle\Twig\WysiwygExtension
+        arguments: ["@oh_media_wysiwyg.wysiwyg"]
+        tags:
+            - { name: twig.extension }

@@ -1,0 +1,20 @@
+{
+    "name": "justin-oh/wysiwyg-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony WysiwygBundle",
+    "keywords": ["Wysiwyg"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Justin Hoffman",
+            "email": "justin@ohmedia.ca"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "symfony/framework-bundle": "5.4.*"
+    },
+    "autoload": {
+        "psr-4": { "OHMedia\\WysiwygBundle\\": "src/" }
+    }
+}
