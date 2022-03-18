@@ -4,23 +4,26 @@ namespace OHMedia\WysiwygBundle;
 
 use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
 use Twig\Environment;
+use Twig\Error\Error;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Extension\SandboxExtension;
 use Twig\Loader\LoaderInterface;
 use Twig\Sandbox\SecurityPolicy;
+use Twig\Sandbox\SecurityError;
 
 class Wysiwyg
 {
     private $environment;
-    private $extentions;
+    private $extensions;
     private $loader;
 
     public function __construct(LoaderInterface $loader)
     {
-        $this->extentions = [];
+        $this->extensions = [];
 
         $this->loader = $loader;
-
-        // TODO: pass in allowed_tags
     }
 
     public function addExtension(AbstractWysiwygExtension $extension)
@@ -64,8 +67,38 @@ class Wysiwyg
         return $this->environment;
     }
 
-    public function validate(string $wysiwyg)
+    public function render(string $wysiwyg)
     {
-        // TODO
+        $environment = $this->getEnvironment();
+
+        $template = $environment->createTemplate($wysiwyg);
+
+        return $environment->render($template);
+    }
+
+    public function validate(string $wysiwyg): string
+    {
+        try {
+            // attempt to render
+            $this->render($wysiwyg);
+
+            return '';
+        }
+        catch (SecurityError $error) {
+            return 'Security error';
+        }
+        catch (LoaderError $error) {
+            // should not get here because there are no templates to load
+            return 'Loader error';
+        }
+        catch (RuntimeError $error) {
+            return 'Runtime error';
+        }
+        catch (SyntaxError $error) {
+            return 'Syntax error.';
+        }
+        catch (Error $error) {
+            return 'Unforeseen error.';
+        }
     }
 }

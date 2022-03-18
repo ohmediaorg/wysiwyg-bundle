@@ -12,36 +12,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WysiwygType extends AbstractType
 {
-    private $sitekey;
-    private $theme;
-    private $size;
+    private $allowedTags;
 
-    public function __construct(TwigEnvironment $twig)
+    public function __construct(array $allowedTags)
     {
-        $this->twig = $twig;
+        $this->allowedTags = $allowedTags;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'allowed_tags' => [
-                'a', 'abbr', 'address', 'article', 'aside',
-                'b', 'blockquote', 'br', 'button',
-                'caption', 'cite', 'code', 'col', 'colgroup',
-                'dd', 'dfn', 'div', 'dl', 'dt',
-                'em', 'embed',
-                'font', 'figcaption', 'figure',
-                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr',
-                'i', 'iframe', 'img',
-                'kbd',
-                'li',
-                'ol',
-                'p', 'picture', 'pre',
-                'q',
-                'section', 'small', 'span', 'strong', 'sub', 'sup', 'svg',
-                'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr',
-                'u', 'ul',
-            ]
+            'allowed_tags' => $this->allowedTags
         ]);
     }
 
@@ -62,18 +43,7 @@ class WysiwygType extends AbstractType
 
     private function getFilteredValue($value, array $options)
     {
-        // filter out tags
-        $value = strip_tags($value, $options['allowed_tags']);
-
-        // filter out twig that's not allowed
-        $source = new TwigSource($value, '');
-        $tokens = $twig->tokenize($source);
-
-        foreach ($tokens as $token) {
-
-        }
-
-        return explode(', ', $tagsAsString);
+        return strip_tags($value, $options['allowed_tags']);
     }
 
     public function getParent()

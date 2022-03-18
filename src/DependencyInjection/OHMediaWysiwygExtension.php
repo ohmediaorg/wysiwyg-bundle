@@ -26,6 +26,10 @@ class OHMediaWysiwygExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
+        foreach ($config as $key => $value) {
+            $container->setParameter("oh_media_wysiwyg.$key", $value);
+        }
+
         $container->registerForAutoconfiguration(AbstractWysiwygExtension::class)
             ->addTag('oh_media_wysiwyg.extension')
         ;

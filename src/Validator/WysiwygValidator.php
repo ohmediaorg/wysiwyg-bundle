@@ -2,7 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\Validator;
 
-use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
+use OHMedia\WysiwygBundle\Service\Wysiwyg;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -14,23 +14,9 @@ class WysiwygValidator extends ConstraintValidator
 {
     private $twig;
 
-    public function __construct(TwigEnvironment $twig)
+    public function __construct(Wysiwyg $wysiwyg)
     {
-        $this->twig = $twig;
-
-        $this->functions = [];
-
-        foreach ($twig->getExtensions() as $extension) {
-            if (!$extension instanceof AbstractWysiwygExtension) {
-                continue;
-            }
-
-            $functions = $extension->getFunctions();
-
-            foreach ($functions as $function) {
-                $this->functions[] = $function->getName();
-            }
-        }
+        $this->wysiwyg = $wysiwyg;
     }
 
     /**
@@ -38,15 +24,10 @@ class WysiwygValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
-        $source = new TwigSource($value, '');
-        $tokens = $twig->tokenize($source);
+        $error = $this->wysiwyg->validate($value);
 
-        foreach ($tokens as $token) {
-
-        }
-
-        if (!$json->success) {
-            $this->context->addViolation($constraint->message);
+        if ($error) {
+            $this->context->addViolation($error);
         }
     }
 }

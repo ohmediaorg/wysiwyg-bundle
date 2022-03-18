@@ -1,6 +1,6 @@
 services:
     OHMedia\WysiwygBundle\Service\Wysiwyg:
-        arguments: ["@twig.loader", "%oh_media_wysiwyg.allowed_tags%"]
+        arguments: ["@twig.loader"]
 
     oh_media_wysiwyg.wysiwyg:
         alias: OHMedia\WysiwygBundle\Service\Wysiwyg
