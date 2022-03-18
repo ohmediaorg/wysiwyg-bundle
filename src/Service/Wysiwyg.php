@@ -1,77 +1,28 @@
 <?php
 
-namespace OHMedia\WysiwygBundle\Service;
-
-use Doctrine\ORM\EntityManager;
-use OHMedia\WysiwygBundle\Entity\Wysiwyg;
-use OHMedia\WysiwygBundle\Interfaces\TransformerInterface;
+namespace OHMedia\WysiwygBundle;
 
 class Wysiwyg
 {
-    private $em;
-    private $transformers;
-    private $wysiwyg;
+    private $environment;
 
-    public function __construct(EntityManager $em)
+    public function __construct(LoaderInterface $loader)
     {
-        $this->em = $em;
-        $this->transformers = [];
-        $this->wysiwyg = [];
+        $this->loader = $loader;
     }
 
-    public function set(string $id, $value): self
+    public function getEnvironment()
     {
-        if ('' === $id) {
-            return $this;
+        if ($this->environment) {
+            return $this->environment;
         }
 
-        $wysiwyg = $this->em->getRepository(Wysiwyg::class)->find($id);
+        $this->environment = new TwigEnvironment($this->loader, [
+            'cache' => false,
+            'autoescape' => false,
+            'auto_reload' => true,
+        ]);
 
-        if (!$wysiwyg) {
-            $wysiwyg = new Wysiwyg();
-            $wysiwyg->setId($id);
-
-            $this->em->persist($wysiwyg);
-        }
-
-        $string = array_key_exists($id, $this->transformers)
-            ? $this->transformers[$id]->transform($value)
-            : $value;
-
-        $wysiwyg->setValue($string);
-
-        $this->em->flush();
-
-        $this->wysiwyg[$id] = $value;
-
-        return $this;
-    }
-
-    public function get(string $id): mixed
-    {
-        if ('' === $id) {
-            return null;
-        }
-
-        if (!array_key_exists($id, $this->wysiwyg)) {
-            $wysiwyg = $this->em->getRepository(Wysiwyg::class)->find($id);
-
-            $string = $wysiwyg ? $wysiwyg->getValue() : null;
-
-            $value = array_key_exists($id, $this->transformers)
-                ? $this->transformers[$id]->reverseTransform($string)
-                : $string;
-
-            $this->wysiwyg[$id] = $value;
-        }
-
-        return $this->wysiwyg[$id];
-    }
-
-    public function addTransformer(TransformerInterface $transformer): self
-    {
-        $this->transformers[$transformer->getId()] = $transformer;
-
-        return $this;
+        return $this->environment;
     }
 }
