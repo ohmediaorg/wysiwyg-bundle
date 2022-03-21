@@ -10,11 +10,14 @@ use Twig\TokenStream;
 
 class Wysiwyg
 {
-    private $extensions;
+    private $algo;
+    private $functions;
     private $twig;
 
     public function __construct(Environment $twig)
     {
+        $this->algo = \PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128';
+
         $this->twig = $twig;
 
         $this->functions = [];
@@ -23,7 +26,9 @@ class Wysiwyg
     public function addExtension(AbstractWysiwygExtension $extension)
     {
         foreach ($extension->getFunctions() as $function) {
-            $this->functions[] = $function->getName();
+            $name = $function->getName();
+
+            $this->functions[$name] = hash($this->algo, $name);
         }
 
         return $this;
@@ -40,10 +45,49 @@ class Wysiwyg
 
     public function filter(string $wysiwyg): string
     {
+        $wysiwyg = $this->preserveTwigSyntax($wysiwyg);
+
+        $wysiwyg = $this->stripTwigSyntax($wysiwyg);
+
+        $wysiwyg = $this->restoreTwigSyntax($wysiwyg);
+
+        return $wysiwyg;
+    }
+
+    private function preserveTwigSyntax(string $wysiwyg): string
+    {
+        foreach ($this->functions as $name => $hash) {
+            // we allow {{ allowed_function_name }}
+            // or {{ allowed_function_name() }}
+            $regex = preg_quote('{{') .
+                '\s*' .
+                preg_quote($name) .
+                '\s*' .
+                '(\(\))?' . // optionally followed by brackets
+                '\s*' .
+                preg_quote('}}');
+
+            // preserve the allowed twig syntax
+            $wysiwyg = preg_replace('/' . $regex . '/', $hash, $wysiwyg);
+        }
+
+        return $wysiwyg;
+    }
+
+    private function restoreTwigSyntax(string $wysiwyg): string
+    {
+        foreach ($this->functions as $name => $hash) {
+            // restore the allowed twig syntax
+            $wysiwyg = str_replace($hash, '{{ ' . $name . '() }}', $wysiwyg);
+        }
+
+        return $wysiwyg;
+    }
+
+    private function stripTwigSyntax(string $wysiwyg)
+    {
         $source = new Source($wysiwyg, '');
         $tokenStream = $this->twig->tokenize($source);
-
-        $regexToReplace = [];
 
         while (!$tokenStream->isEOF()) {
             $token = $tokenStream->next();
@@ -59,12 +103,8 @@ class Wysiwyg
             }
 
             if ($regex) {
-                $regexToReplace[] = $regex;
+                $wysiwyg = preg_replace('/' . $regex . '/', '', $wysiwyg);
             }
-        }
-
-        foreach ($regexToReplace as $r) {
-            $wysiwyg = preg_replace('/' . $r . '/', '', $wysiwyg);
         }
 
         return $wysiwyg;
@@ -80,9 +120,9 @@ class Wysiwyg
 
         $regex = $this->buildRegex($tokens);
 
-        array_unshift($regex, preg_quote('{{') . '(-|~)?');
+        array_unshift($regex, preg_quote('{%') . '(-|~)?');
 
-        $regex[] = '(-|~)?' . preg_quote('}}');
+        $regex[] = '(-|~)?' . preg_quote('%}');
 
         return $regex;
     }
@@ -94,16 +134,6 @@ class Wysiwyg
             Token::VAR_START_TYPE,
             Token::VAR_END_TYPE
         );
-
-        // We need to find the first variable name and check if it's a function.
-        // If it's a function we allow, the only things that can be found
-        // between the brackets are integers, strings, and true|false.
-        // Otherwise, the regex will be built to remove this syntax.
-
-        $nameFound = false;
-        foreach ($tokens as $token) {
-
-        }
 
         $regex = $this->buildRegex($tokens);
 
