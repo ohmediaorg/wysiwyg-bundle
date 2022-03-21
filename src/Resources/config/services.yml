@@ -12,11 +12,3 @@ services:
 
     oh_media_wysiwyg.form.type.wysiwyg:
         alias: OHMedia\WysiwygBundle\Form\Type\WysiwygType
-
-    OHMedia\WysiwygBundle\Validator\WysiwygValidator:
-        arguments: ["@oh_media_wysiwyg.wysiwyg"]
-        tags:
-            - { name: validator.constraint_validator }
-
-    oh_media_wysiwyg.validator.wysiwyg:
-        alias: OHMedia\WysiwygBundle\Validator\WysiwygValidator
