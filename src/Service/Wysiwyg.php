@@ -11,12 +11,15 @@ use Twig\TokenStream;
 class Wysiwyg
 {
     private $algo;
+    private $allowedTags;
     private $functions;
     private $twig;
 
-    public function __construct(Environment $twig)
-    {
+    public function __construct(Environment $twig, array $allowedTags)
+    {var_dump($allowedTags);
         $this->algo = \PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128';
+
+        $this->allowedTags = $allowedTags;
 
         $this->twig = $twig;
 
@@ -45,6 +48,15 @@ class Wysiwyg
 
     public function filter(string $wysiwyg): string
     {
+        $wysiwyg = $this->filterTwig($wysiwyg);
+
+        $wysiwyg = $this->filterHtml($wysiwyg);
+
+        return $wysiwyg;
+    }
+
+    public function filterTwig(string $wysiwyg): string
+    {
         $wysiwyg = $this->preserveTwigSyntax($wysiwyg);
 
         $wysiwyg = $this->stripTwigSyntax($wysiwyg);
@@ -52,6 +64,11 @@ class Wysiwyg
         $wysiwyg = $this->restoreTwigSyntax($wysiwyg);
 
         return $wysiwyg;
+    }
+
+    public function filterHtml(string $wysiwyg, array $allowedTags = null): string
+    {
+        return strip_tags($wysiwyg, $allowedTags ?: $this->allowedTags);
     }
 
     private function preserveTwigSyntax(string $wysiwyg): string

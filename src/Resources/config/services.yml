@@ -1,12 +1,11 @@
 services:
     OHMedia\WysiwygBundle\Service\Wysiwyg:
-        arguments: ["@twig.loader"]
+        arguments: ["@twig", "%oh_media_wysiwyg.allowed_tags%"]
 
     oh_media_wysiwyg.wysiwyg:
         alias: OHMedia\WysiwygBundle\Service\Wysiwyg
 
     OHMedia\WysiwygBundle\Form\Type\WysiwygType:
-        arguments: ["%oh_media_wysiwyg.allowed_tags%"]
         tags:
             - { name: form.type }
 

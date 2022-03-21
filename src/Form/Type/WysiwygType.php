@@ -2,7 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\Form\Type;
 
-use OHMedia\WysiwygBundle\Validator\Constraints\Wysiwyg;
+use OHMedia\WysiwygBundle\Service\Wysiwyg;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -12,17 +12,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WysiwygType extends AbstractType
 {
-    private $allowedTags;
+    private $wysiwyg;
 
-    public function __construct(array $allowedTags)
+    public function __construct(Wysiwyg $wysiwyg)
     {
-        $this->allowedTags = $allowedTags;
+        $this->wysiwyg = $wysiwyg;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'allowed_tags' => $this->allowedTags
+            'allowed_tags' => null
         ]);
     }
 
@@ -36,14 +36,9 @@ class WysiwygType extends AbstractType
                 return $value;
             },
             function ($value) use ($options) {
-                return $this->getFilteredValue($value, $options);
+                return $this->wysiwyg->filter($value, $options);
             }
         ));
-    }
-
-    private function getFilteredValue($value, array $options)
-    {
-        return strip_tags($value, $options['allowed_tags']);
     }
 
     public function getParent()
