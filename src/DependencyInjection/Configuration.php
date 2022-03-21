@@ -38,11 +38,14 @@ class Configuration implements ConfigurationInterface
             'u', 'ul',
         ];
 
-        $treeBuilder
-            ->arrayNode('allowed_tags')
-                ->scalarPrototype()
-                    ->defaultValue($default)
-                    ->cannotBeEmpty()
+        $treeBuilder->getRootNode()
+            ->children()
+                ->arrayNode('allowed_tags')
+                    ->scalarPrototype()
+                        ->defaultValue($default)
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
                 ->end()
             ->end()
         ;
