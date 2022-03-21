@@ -4,101 +4,150 @@ namespace OHMedia\WysiwygBundle;
 
 use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
 use Twig\Environment;
-use Twig\Error\Error;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
-use Twig\Extension\SandboxExtension;
-use Twig\Loader\LoaderInterface;
-use Twig\Sandbox\SecurityPolicy;
-use Twig\Sandbox\SecurityError;
+use Twig\Source;
+use Twig\Token;
+use Twig\TokenStream;
 
 class Wysiwyg
 {
-    private $environment;
     private $extensions;
-    private $loader;
+    private $twig;
 
-    public function __construct(LoaderInterface $loader)
+    public function __construct(Environment $twig)
     {
-        $this->extensions = [];
+        $this->twig = $twig;
 
-        $this->loader = $loader;
+        $this->functions = [];
     }
 
     public function addExtension(AbstractWysiwygExtension $extension)
     {
-        $this->extensions[] = $extension;
+        foreach ($extension->getFunctions() as $function) {
+            $this->functions[] = $function->getName();
+        }
 
         return $this;
     }
 
-    public function getEnvironment(): Environment
+    public function render(string $wysiwyg)
     {
-        if ($this->environment) {
-            return $this->environment;
-        }
+        $wysiwyg = $this->filter($wysiwyg);
 
-        $this->environment = new Environment($this->loader, [
-            'debug' => false,
-            'charset' => 'UTF-8',
-            'strict_variables' => false,
-            'autoescape' => false,
-            'cache' => false,
-            'auto_reload' => null,
-            'optimizations' => 0,
-        ]);
+        $template = $this->twig->createTemplate($wysiwyg);
 
-        $functions = [];
+        return $this->twig->render($template);
+    }
 
-        foreach ($this->extensions as $extension) {
-            $this->environment->addExtension($extension);
+    public function filter(string $wysiwyg): string
+    {
+        $source = new Source($wysiwyg, '');
+        $tokenStream = $this->twig->tokenize($source);
 
-            foreach ($extension->getFunctions() as $function) {
-                $functions[] = $function->getName();
+        $regexToReplace = [];
+
+        while (!$tokenStream->isEOF()) {
+            $token = $tokenStream->next();
+
+            if ($token->test(Token::BLOCK_START_TYPE)) {
+                $regex = $this->buildBlockRegex($tokenStream);
+            }
+            else if ($token->test(Token::VAR_START_TYPE)) {
+                $regex = $this->buildVariableRegex($tokenStream);
+            }
+            else {
+                $regex = null;
+            }
+
+            if ($regex) {
+                $regexToReplace[] = $regex;
             }
         }
 
-        $policy = new SecurityPolicy([], [], [], [], $functions);
-        $sandbox = new SandboxExtension($policy);
+        foreach ($regexToReplace as $r) {
+            $wysiwyg = preg_replace('/' . $r . '/', '', $wysiwyg);
+        }
 
-        $this->environment->addExtension($sandbox);
-
-        return $this->environment;
+        return $wysiwyg;
     }
 
-    public function render(string $wysiwyg)
+    private function buildBlockRegex(TokenStream $tokenStream)
     {
-        $environment = $this->getEnvironment();
+        $tokens = $this->getTokens(
+            $tokenStream,
+            Token::BLOCK_START_TYPE,
+            Token::BLOCK_END_TYPE
+        );
 
-        $template = $environment->createTemplate($wysiwyg);
+        $regex = $this->buildRegex($tokens);
 
-        return $environment->render($template);
+        array_unshift($regex, preg_quote('{{') . '(-|~)?');
+
+        $regex[] = '(-|~)?' . preg_quote('}}');
+
+        return $regex;
     }
 
-    public function validate(string $wysiwyg): string
+    private function buildVariableRegex(TokenStream $tokenStream)
     {
-        try {
-            // attempt to render
-            $this->render($wysiwyg);
+        $tokens = $this->getTokens(
+            $tokenStream,
+            Token::VAR_START_TYPE,
+            Token::VAR_END_TYPE
+        );
 
-            return '';
+        // We need to find the first variable name and check if it's a function.
+        // If it's a function we allow, the only things that can be found
+        // between the brackets are integers, strings, and true|false.
+        // Otherwise, the regex will be built to remove this syntax.
+
+        $nameFound = false;
+        foreach ($tokens as $token) {
+
         }
-        catch (SecurityError $error) {
-            return 'Security error';
+
+        $regex = $this->buildRegex($tokens);
+
+        array_unshift($regex, preg_quote('{{') . '(-|~)?');
+
+        $regex[] = '(-|~)?' . preg_quote('}}');
+
+        return $regex;
+    }
+
+    private function getTokens(TokenStream $tokenStream, int $start, int $end): array
+    {
+        $tokens = [];
+
+        do {
+            $tokens[] = $tokenStream->next();
+        } while(!$tokenStream->test(Token::BLOCK_END_TYPE));
+
+        return $tokens;
+    }
+
+    private function buildRegex(...Token $tokens): array
+    {
+        $regex = [];
+
+        foreach ($tokens as $token) {
+            if ($current->test(Token::STRING_TYPE)) {
+                $r = preg_quote($token->getValue());
+
+                // look for the string value surrounded
+                // by either single or double quotes
+                $regex[] = '(' . "'" . $r . "'" . '|' . '"' . $r . '"' . ')';
+            }
+            else if ($token->test(Token::INTERPOLATION_START_TYPE)) {
+                $regex[] = preg_quote('#{');
+            }
+            else if ($token->test(Token::INTERPOLATION_END_TYPE)) {
+                $regex[] = preg_quote('}');
+            }
+            else {
+                $regex[] = preg_quote($token->getValue());
+            }
         }
-        catch (LoaderError $error) {
-            // should not get here because there are no templates to load
-            return 'Loader error';
-        }
-        catch (RuntimeError $error) {
-            return 'Runtime error';
-        }
-        catch (SyntaxError $error) {
-            return 'Syntax error.';
-        }
-        catch (Error $error) {
-            return 'Unforeseen error.';
-        }
+
+        return $regex;
     }
 }
