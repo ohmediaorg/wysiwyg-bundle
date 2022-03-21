@@ -1,6 +1,6 @@
 <?php
 
-namespace OHMedia\WysiwygBundle;
+namespace OHMedia\WysiwygBundle\Service;
 
 use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
 use Twig\Environment;
@@ -63,7 +63,7 @@ class Wysiwyg
                 '\s*' .
                 preg_quote($name) .
                 '\s*' .
-                '(\(\))?' . // optionally followed by brackets
+                '(\(\s*\))?' . // optional brackets with optional whitespace between
                 '\s*' .
                 preg_quote('}}');
 
@@ -112,55 +112,40 @@ class Wysiwyg
 
     private function buildBlockRegex(TokenStream $tokenStream)
     {
-        $tokens = $this->getTokens(
+        return $this->buildRegex(
             $tokenStream,
-            Token::BLOCK_START_TYPE,
-            Token::BLOCK_END_TYPE
+            Token::BLOCK_END_TYPE,
+            '{%',
+            '%}'
         );
-
-        $regex = $this->buildRegex($tokens);
-
-        array_unshift($regex, preg_quote('{%') . '(-|~)?');
-
-        $regex[] = '(-|~)?' . preg_quote('%}');
-
-        return $regex;
     }
 
     private function buildVariableRegex(TokenStream $tokenStream)
     {
+        return $this->buildRegex(
+            $tokenStream,
+            Token::VAR_END_TYPE,
+            '{{',
+            '}}'
+        );
+    }
+
+    private function buildRegex(
+        TokenStream $tokenStream,
+        int $end,
+        string $open,
+        string $close
+    ): string
+    {
         $tokens = $this->getTokens(
             $tokenStream,
-            Token::VAR_START_TYPE,
-            Token::VAR_END_TYPE
+            $end
         );
 
-        $regex = $this->buildRegex($tokens);
-
-        array_unshift($regex, preg_quote('{{') . '(-|~)?');
-
-        $regex[] = '(-|~)?' . preg_quote('}}');
-
-        return $regex;
-    }
-
-    private function getTokens(TokenStream $tokenStream, int $start, int $end): array
-    {
-        $tokens = [];
-
-        do {
-            $tokens[] = $tokenStream->next();
-        } while(!$tokenStream->test(Token::BLOCK_END_TYPE));
-
-        return $tokens;
-    }
-
-    private function buildRegex(...Token $tokens): array
-    {
-        $regex = [];
+        $regex = [preg_quote($open) . '(-|~)?'];
 
         foreach ($tokens as $token) {
-            if ($current->test(Token::STRING_TYPE)) {
+            if ($token->test(Token::STRING_TYPE)) {
                 $r = preg_quote($token->getValue());
 
                 // look for the string value surrounded
@@ -178,6 +163,19 @@ class Wysiwyg
             }
         }
 
-        return $regex;
+        $regex[] = '(-|~)?' . preg_quote($close);
+
+        return implode('\s*', $regex);
+    }
+
+    private function getTokens(TokenStream $tokenStream, int $end): array
+    {
+        $tokens = [];
+
+        do {
+            $tokens[] = $tokenStream->next();
+        } while(!$tokenStream->test($end));
+
+        return $tokens;
     }
 }
