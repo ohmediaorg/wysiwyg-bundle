@@ -36,7 +36,7 @@ class WysiwygType extends AbstractType
                 return $value;
             },
             function ($value) use ($options) {
-                return $this->wysiwyg->filter($value, $options);
+                return $this->wysiwyg->filter($value, $options['allowed_tags']);
             }
         ));
     }
