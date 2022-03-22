@@ -6,6 +6,7 @@ services:
         alias: OHMedia\WysiwygBundle\Service\Wysiwyg
 
     OHMedia\WysiwygBundle\Form\Type\WysiwygType:
+        arguments: ["@oh_media_wysiwyg.wysiwyg"]
         tags:
             - { name: form.type }
 

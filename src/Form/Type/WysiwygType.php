@@ -4,6 +4,7 @@ namespace OHMedia\WysiwygBundle\Form\Type;
 
 use OHMedia\WysiwygBundle\Service\Wysiwyg;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
@@ -30,7 +31,7 @@ class WysiwygType extends AbstractType
     {
         $allowed = [];
 
-        $this->addModelTransformer(new CallbackTransformer(
+        $builder->addModelTransformer(new CallbackTransformer(
             function ($value) {
                 // don't need to do anything here
                 return $value;
