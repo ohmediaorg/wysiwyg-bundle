@@ -16,7 +16,7 @@ class Wysiwyg
     private $twig;
 
     public function __construct(Environment $twig, array $allowedTags)
-    {var_dump($allowedTags);
+    {
         $this->algo = \PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128';
 
         $this->allowedTags = $allowedTags;
