@@ -2,6 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\DependencyInjection;
 
+use OHMedia\WysiwygBundle\Util\HtmlTags;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -19,36 +20,24 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('oh_media_wysiwyg');
 
-        $default = [
-            'a', 'abbr', 'address', 'article', 'aside',
-            'b', 'blockquote', 'br', 'button',
-            'caption', 'cite', 'code', 'col', 'colgroup',
-            'dd', 'dfn', 'div', 'dl', 'dt',
-            'em', 'embed',
-            'font', 'figcaption', 'figure',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr',
-            'i', 'iframe', 'img',
-            'kbd',
-            'li',
-            'ol',
-            'p', 'picture', 'pre',
-            'q',
-            'section', 'small', 'span', 'strong', 'sub', 'sup', 'svg',
-            'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr',
-            'u', 'ul',
-        ];
-
-        $treeBuilder->getRootNode()
+        $allowedTags = $treeBuilder->getRootNode()
             ->children()
-                ->arrayNode('allowed_tags')
-                    ->scalarPrototype()
-                        ->defaultValue($default)
-                        ->isRequired()
-                        ->cannotBeEmpty()
-                    ->end()
-                ->end()
-            ->end()
-        ;
+                ->arrayNode('tags')
+                    ->children();
+
+        foreach (HtmlTags::SAFE as $tag) {
+            $allowedTags->booleanNode($tag)
+                ->defaultTrue()
+            ->end();
+        }
+
+        foreach (HtmlTags::UNSAFE as $tag) {
+            $allowedTags->booleanNode($tag)
+                ->defaultFalse()
+            ->end();
+        }
+
+        $allowedTags->end()->end();
 
         return $treeBuilder;
     }
