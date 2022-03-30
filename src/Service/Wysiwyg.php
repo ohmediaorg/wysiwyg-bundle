@@ -2,6 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\Service;
 
+use Exception;
 use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
 use Twig\Environment;
 use Twig\Source;
@@ -26,7 +27,7 @@ class Wysiwyg
         $this->functions = [];
     }
 
-    public function addExtension(AbstractWysiwygExtension $extension)
+    public function addExtension(AbstractWysiwygExtension $extension): self
     {
         foreach ($extension->getFunctions() as $function) {
             $name = $function->getName();
@@ -123,7 +124,7 @@ class Wysiwyg
         return $wysiwyg;
     }
 
-    private function stripTwigSyntax(string $wysiwyg)
+    private function stripTwigSyntax(string $wysiwyg): string
     {
         $source = new Source($wysiwyg, '');
         $tokenStream = $this->twig->tokenize($source);
@@ -149,7 +150,7 @@ class Wysiwyg
         return $wysiwyg;
     }
 
-    private function buildBlockRegex(TokenStream $tokenStream)
+    private function buildBlockRegex(TokenStream $tokenStream): string
     {
         return $this->buildRegex(
             $tokenStream,
@@ -159,7 +160,7 @@ class Wysiwyg
         );
     }
 
-    private function buildVariableRegex(TokenStream $tokenStream)
+    private function buildVariableRegex(TokenStream $tokenStream): string
     {
         return $this->buildRegex(
             $tokenStream,
