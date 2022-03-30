@@ -37,8 +37,26 @@ class Wysiwyg
         return $this;
     }
 
-    public function render(string $wysiwyg)
+    public function isValid(string $wysiwyg): bool
     {
+        try {
+            $this->twig->createTemplate($wysiwyg);
+
+            return true;
+        }
+        catch(Exception $e) {
+            return false;
+        }
+    }
+
+    public function render(string $wysiwyg): string
+    {
+        if (!$this->isValid($wysiwyg)) {
+            // Invalid Twig Syntax
+            // just return the string without the allowed HTML tags
+            return $this->filterHtml($wysiwyg);
+        }
+
         $wysiwyg = $this->filter($wysiwyg);
 
         $template = $this->twig->createTemplate($wysiwyg);
