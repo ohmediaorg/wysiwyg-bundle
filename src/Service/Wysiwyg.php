@@ -86,7 +86,11 @@ class Wysiwyg
 
     public function filterHtml(string $wysiwyg, array $allowedTags = null): string
     {
-        return strip_tags($wysiwyg, $allowedTags ?: $this->allowedTags);
+        if (null === $allowedTags) {
+            $allowedTags = $this->allowedTags;
+        }
+
+        return strip_tags($wysiwyg, $allowedTags);
     }
 
     private function preserveTwigSyntax(string $wysiwyg): string
