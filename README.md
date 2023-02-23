@@ -77,13 +77,14 @@ class WysiwygExtension extends AbstractWysiwygExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('function_name', [$this, 'doSomething']),
+            new TwigFunction('my_custom_function', [$this, 'myCustomFunction']),
         ];
     }
 }
 ```
 
-You will only be able to define the `getFunctions` function.
+You will only be able to define the `getFunctions` function, but every Twig
+function you define this way can be used in a Wysiwyg form field.
 
 ## Rendering
 
