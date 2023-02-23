@@ -1,10 +1,9 @@
-Overview
-========
+# Overview
 
-This bundle offers functionality to store name/value wysiwyg in the DB.
+This bundle offers a form field that allows certain HTML tags and Twig syntax,
+while filtering out anything else.
 
-Installation
-------------
+## Installation
 
 Enable the bundle in `config/bundles.php`:
 
@@ -15,102 +14,95 @@ return [
 ];
 ```
 
-Make and run the migration:
-
-```bash
-$ php bin/console make:migration
-$ php bin/console doctrine:migrations:migrate
-```
-
-How-To
-------
-
-Custom wysiwyg are created through the service:
-
-```php
-use OHMedia\WysiwygBundle\Service\Wysiwyg;
-
-public function myAction(Wysiwyg $wysiwyg)
-{
-    $wysiwyg->set('app_my_new_wysiwyg', 'my value');
-}
-```
-
-Once the wysiwyg is saved the value will be accessible in Twig:
-
-```twig
-{{ wysiwyg('app_my_new_wysiwyg') }}
-```
-
-or from the service itself:
-
-```php
-use OHMedia\WysiwygBundle\Service\Wysiwyg;
-
-public function myAction(Wysiwyg $wysiwyg)
-{
-    $value = $wysiwyg->get('app_my_new_wysiwyg');
-}
-```
-
-It is recommended to prefix your wysiwyg with your bundle name
-to significantly reduce the chance of ID collision.
-
-More Complex Data
------------------
-
-If your wysiwyg value is more complex than a string,
-then you need to be able to convert it to and from a string.
-
-First, create a service tagged with `oh_media_wysiwyg.transformer`:
+Create the minimum config file in `config/oh_media_wysiwyg.yaml`:
 
 ```yaml
-services:
-    App\Wysiwyg\Transformer:
-        tags: ["oh_media_wysiwyg.transformer"]
+oh_media_wysiwyg:
+    tags:
 ```
 
-Your service should implement `OHMedia\WysiwygBundle\Interfaces\TransformerInterface`,
-which requires three functions. One function that gives the ID of the wysiwyg,
-and two functions to transform that wysiwyg's value.
+This will enable/disable HTML tags based on constant values inside of
+`OHMedia\WysiwygBundle\Util\HtmlTags`.
+
+You can also specify your own preferences:
+
+```yaml
+oh_media_wysiwyg:
+    tags:
+        fieldset: true
+        table: false
+```
+
+## Form Field
+
+Add the field to your form:
 
 ```php
-<?php
+use OHMedia\WysiwygBundle\Form\Type\WysiwygType;
 
-namespace App\Wysiwyg;
+$builder->add('description', WysiwygType::class);
+```
 
-use App\Entity\User;
-use App\Repository\UserRepository;
-use OHMedia\WysiwygBundle\Interfaces\TransformerInterface;
+You can also specified allowed tags per form field:
 
-class Transformer implements TransformerInterface
+```php
+use OHMedia\WysiwygBundle\Form\Type\WysiwygType;
+
+$builder->add('description', WysiwygType::class, [
+    'allowed_tags' => ['p', 'div', 'span'],
+]);
+```
+
+You will need to apply your preferred WYSIWYG editor to the field manually.
+
+## Twig Functions
+
+You can define simple, parameter-less twig functions for use in the Wysiwyg
+field content. Nothing else. No variables, filters, etc.
+
+The reason they are parameter-less is it keeps things simple. It also allows for
+function syntax without brackets (eg. `{{ my_custom_function }}`).
+
+Create an extension as usual, but extend
+`OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension`:
+
+```php
+namespace App\Twig;
+
+use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
+
+class WysiwygExtension extends AbstractWysiwygExtension
 {
-    private $userRepository;
-    
-    public function __construct(UserRepository $userRepository)
+    public function getFunctions(): array
     {
-        $this->userRepository = $userRepository;
-    }
-    
-    public function getId(): string
-    {
-        return 'my_special_user';
-    }
-    
-    public function transform($value): ?string
-    {
-        return (string) $value->getId();
-    }
-    
-    public function reverseTransform(?string $value)
-    {
-        return $userRepository->find($value);
+        return [
+            new TwigFunction('function_name', [$this, 'doSomething']),
+        ];
     }
 }
 ```
 
-The example transformer above will be the only transformer
-to handle wysiwyg with ID 'my_special_user'.
+You will only be able to define the `getFunctions` function.
 
-You will need to create a transformer for every unique
-wysiwyg ID you wish to transform.
+## Rendering
+
+The Wysiwyg form value will be saved with the HTML tags and Twig syntax filtered
+out. You will need to render it after the fact using the service:
+
+```php
+use OHMedia\WysiwygBundle\Service\Wysiwyg;
+
+public function myCOntrollerAction(Wysiwyg $wysiwyg)
+{
+    $description = $myEntity->getDescription();
+    
+    $rendered = $wysiwyg->render($description);
+}
+```
+
+If you overwrote the `allowed_tags` in the form field, you will need to pass
+that same array as the second parameter of the render function:
+
+```php
+$rendered = $wysiwyg->render($description, ['p', 'div', 'span']);
+```
