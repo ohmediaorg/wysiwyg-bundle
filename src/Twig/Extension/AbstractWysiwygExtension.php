@@ -4,7 +4,7 @@ namespace OHMedia\WysiwygBundle\Twig\Extension;
 
 use Twig\Extension\AbstractExtension;
 
-abstract class AbstractWysiwygExtension implements AbstractExtension
+abstract class AbstractWysiwygExtension extends AbstractExtension
 {
     final public function getTokenParsers(): array
     {
