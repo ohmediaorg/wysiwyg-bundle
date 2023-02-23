@@ -50,26 +50,26 @@ class Wysiwyg
         }
     }
 
-    public function render(string $wysiwyg): string
+    public function render(string $wysiwyg, ?array $allowedTags = null): string
     {
         if (!$this->isValid($wysiwyg)) {
             // Invalid Twig Syntax
             // just return the string without the allowed HTML tags
-            return $this->filterHtml($wysiwyg);
+            return $this->filterHtml($wysiwyg, $allowedTags);
         }
 
-        $wysiwyg = $this->filter($wysiwyg);
+        $wysiwyg = $this->filter($wysiwyg, $allowedTags);
 
         $template = $this->twig->createTemplate($wysiwyg);
 
         return $this->twig->render($template);
     }
 
-    public function filter(string $wysiwyg): string
+    public function filter(string $wysiwyg, ?array $allowedTags = null): string
     {
         $wysiwyg = $this->filterTwig($wysiwyg);
 
-        $wysiwyg = $this->filterHtml($wysiwyg);
+        $wysiwyg = $this->filterHtml($wysiwyg, $allowedTags);
 
         return $wysiwyg;
     }
@@ -85,7 +85,7 @@ class Wysiwyg
         return $wysiwyg;
     }
 
-    public function filterHtml(string $wysiwyg, array $allowedTags = null): string
+    public function filterHtml(string $wysiwyg, ?array $allowedTags = null): string
     {
         if (null === $allowedTags) {
             $allowedTags = $this->allowedTags;
