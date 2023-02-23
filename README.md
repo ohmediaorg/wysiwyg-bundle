@@ -70,6 +70,7 @@ Create an extension as usual, but extend
 namespace App\Twig;
 
 use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
+use Twig\TwigFunction;
 
 class WysiwygExtension extends AbstractWysiwygExtension
 {
@@ -92,7 +93,7 @@ out. You will need to render it after the fact using the service:
 ```php
 use OHMedia\WysiwygBundle\Service\Wysiwyg;
 
-public function myCOntrollerAction(Wysiwyg $wysiwyg)
+public function myControllerAction(Wysiwyg $wysiwyg)
 {
     $description = $myEntity->getDescription();
     
@@ -100,9 +101,23 @@ public function myCOntrollerAction(Wysiwyg $wysiwyg)
 }
 ```
 
+or the Twig function:
+
+```twig
+{{ wysiwyg(myEntity.description) }}
+```
+
 If you overwrote the `allowed_tags` in the form field, you will need to pass
-that same array as the second parameter of the render function:
+that same array as the second parameter of the render function.
+
+You can do this in PHP:
 
 ```php
 $rendered = $wysiwyg->render($description, ['p', 'div', 'span']);
+```
+
+or in Twig:
+
+```twig
+{{ wysiwyg(myEntity.description, ['p', 'div', 'span']) }}
 ```
