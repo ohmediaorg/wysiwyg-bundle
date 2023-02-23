@@ -1,5 +1,5 @@
 {
-    "name": "justin-oh/wysiwyg-bundle",
+    "name": "ohmediaorg/wysiwyg-bundle",
     "type": "symfony-bundle",
     "description": "Symfony WysiwygBundle",
     "keywords": ["Wysiwyg"],
