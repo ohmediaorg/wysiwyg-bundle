@@ -32,7 +32,7 @@ class Wysiwyg
         foreach ($extension->getFunctions() as $function) {
             $name = $function->getName();
 
-            $this->functions[$name] = hash($this->algo, $name);
+            $this->functions[] = $name;
         }
 
         return $this;
@@ -96,19 +96,35 @@ class Wysiwyg
 
     private function preserveTwigSyntax(string $wysiwyg): string
     {
-        foreach ($this->functions as $name => $hash) {
+        $this->hashMap = [];
+
+        foreach ($this->functions as $name) {
             // we allow {{ allowed_function_name }}
             // or {{ allowed_function_name() }}
+            // or {{ allowed_function_name(1234) }}
             $regex = preg_quote('{{') .
                 '\s*' .
                 preg_quote($name) .
                 '\s*' .
-                '(\(\s*\))?' . // optional brackets with optional whitespace between
+                '(\(([^\)]*)\))?' . // optional brackets with optional whitespace between
                 '\s*' .
                 preg_quote('}}');
 
-            // preserve the allowed twig syntax
-            $wysiwyg = preg_replace('/' . $regex . '/', $hash, $wysiwyg);
+            preg_match('/' . $regex . '/', $wysiwyg, $matches);
+
+            if ($matches) {
+                $find = $matches[0];
+                $arg = intval(trim($matches[2]));
+
+                $hash = hash($this->algo, $find);
+
+                $wysiwyg = str_replace($find, $hash, $wysiwyg);
+
+                $this->hashMap[$hash] = [
+                    'name' => $name,
+                    'arg' => $arg ?: '',
+                ];
+            }
         }
 
         return $wysiwyg;
@@ -116,9 +132,11 @@ class Wysiwyg
 
     private function restoreTwigSyntax(string $wysiwyg): string
     {
-        foreach ($this->functions as $name => $hash) {
+        foreach ($this->hashMap as $hash => $func) {
             // restore the allowed twig syntax
-            $wysiwyg = str_replace($hash, '{{ ' . $name . '() }}', $wysiwyg);
+            $replace = sprintf('{{ %s(%s) }}', $func['name'], $func['arg']);
+
+            $wysiwyg = str_replace($hash, $replace, $wysiwyg);
         }
 
         return $wysiwyg;
