@@ -57,11 +57,9 @@ You will need to apply your preferred WYSIWYG editor to the field manually.
 
 ## Twig Functions
 
-You can define simple, parameter-less twig functions for use in the Wysiwyg
-field content. Nothing else. No variables, filters, etc.
-
-The reason they are parameter-less is it keeps things simple. It also allows for
-function syntax without brackets (eg. `{{ my_custom_function }}`).
+You can define simple twig functions for use in the Wysiwyg field content. These
+functions can have a single integer parameter at most. No variables, filters, etc.
+This keeps the syntax simple for the average user.
 
 Create an extension as usual, but extend
 `OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension`:

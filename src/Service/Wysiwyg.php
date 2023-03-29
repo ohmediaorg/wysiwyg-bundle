@@ -106,7 +106,7 @@ class Wysiwyg
                 '\s*' .
                 preg_quote($name) .
                 '\s*' .
-                '(\(([^\)]*)\))?' . // optional brackets with optional whitespace between
+                '(\(([^\)]*)\))?' . // optional brackets with optional argument between
                 '\s*' .
                 preg_quote('}}');
 
