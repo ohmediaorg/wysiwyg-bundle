@@ -114,7 +114,7 @@ class Wysiwyg
 
             if ($matches) {
                 $find = $matches[0];
-                $arg = intval(trim($matches[2]));
+                $arg = isset($matches[2]) ? intval(trim($matches[2])) : '';
 
                 $hash = hash($this->algo, $find);
 
