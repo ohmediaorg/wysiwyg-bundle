@@ -44,8 +44,7 @@ class WysiwygType extends AbstractType
                     );
 
                     $event->setData($filtered);
-                }
-                else {
+                } else {
                     $error = new FormError('Malformed shortcode syntax');
 
                     $event->getForm()->addError($error);

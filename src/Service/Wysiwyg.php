@@ -44,8 +44,7 @@ class Wysiwyg
             $this->twig->createTemplate($wysiwyg);
 
             return true;
-        }
-        catch(Exception $e) {
+        } catch(Exception $e) {
             return false;
         }
     }
@@ -152,11 +151,9 @@ class Wysiwyg
 
             if ($token->test(Token::BLOCK_START_TYPE)) {
                 $regex = $this->buildBlockRegex($tokenStream);
-            }
-            else if ($token->test(Token::VAR_START_TYPE)) {
+            } elseif ($token->test(Token::VAR_START_TYPE)) {
                 $regex = $this->buildVariableRegex($tokenStream);
-            }
-            else {
+            } else {
                 $regex = null;
             }
 
@@ -193,8 +190,7 @@ class Wysiwyg
         int $end,
         string $open,
         string $close
-    ): string
-    {
+    ): string {
         $tokens = $this->getTokens(
             $tokenStream,
             $end
@@ -209,14 +205,11 @@ class Wysiwyg
                 // look for the string value surrounded
                 // by either single or double quotes
                 $regex[] = '(' . "'" . $r . "'" . '|' . '"' . $r . '"' . ')';
-            }
-            else if ($token->test(Token::INTERPOLATION_START_TYPE)) {
+            } elseif ($token->test(Token::INTERPOLATION_START_TYPE)) {
                 $regex[] = preg_quote('#{');
-            }
-            else if ($token->test(Token::INTERPOLATION_END_TYPE)) {
+            } elseif ($token->test(Token::INTERPOLATION_END_TYPE)) {
                 $regex[] = preg_quote('}');
-            }
-            else {
+            } else {
                 $regex[] = preg_quote($token->getValue());
             }
         }
