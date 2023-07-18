@@ -2,7 +2,6 @@
 
 namespace OHMedia\WysiwygBundle\Service;
 
-use Exception;
 use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
 use Twig\Environment;
 use Twig\Source;
@@ -44,7 +43,7 @@ class Wysiwyg
             $this->twig->createTemplate($wysiwyg);
 
             return true;
-        } catch(Exception $e) {
+        } catch(\Exception $e) {
             return false;
         }
     }
