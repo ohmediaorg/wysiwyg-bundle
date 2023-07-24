@@ -7,8 +7,7 @@ services:
 
     OHMedia\WysiwygBundle\Form\Type\WysiwygType:
         arguments: ["@oh_media_wysiwyg.wysiwyg"]
-        tags:
-            - { name: form.type }
+        tags: ["form.type"]
 
     oh_media_wysiwyg.form.type.wysiwyg:
         alias: OHMedia\WysiwygBundle\Form\Type\WysiwygType
@@ -16,5 +15,4 @@ services:
     oh_media_wysiwyg.twig_extension:
         class: OHMedia\WysiwygBundle\Twig\Extension\WysiwygExtension
         arguments: ["@oh_media_wysiwyg.wysiwyg"]
-        tags:
-            - { name: twig.extension }
+        tags: ["twig.extension"]
