@@ -43,12 +43,12 @@ class Wysiwyg
             $this->twig->createTemplate($wysiwyg);
 
             return true;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }
 
-    public function render(string $wysiwyg, ?array $allowedTags = null): string
+    public function render(string $wysiwyg, array $allowedTags = null): string
     {
         if (!$this->isValid($wysiwyg)) {
             // Invalid Twig Syntax
@@ -63,7 +63,7 @@ class Wysiwyg
         return $this->twig->render($template);
     }
 
-    public function filter(string $wysiwyg, ?array $allowedTags = null): string
+    public function filter(string $wysiwyg, array $allowedTags = null): string
     {
         $wysiwyg = $this->filterTwig($wysiwyg);
 
@@ -83,7 +83,7 @@ class Wysiwyg
         return $wysiwyg;
     }
 
-    public function filterHtml(string $wysiwyg, ?array $allowedTags = null): string
+    public function filterHtml(string $wysiwyg, array $allowedTags = null): string
     {
         if (null === $allowedTags) {
             $allowedTags = $this->allowedTags;
@@ -100,15 +100,15 @@ class Wysiwyg
             // we allow {{ allowed_function_name }}
             // or {{ allowed_function_name() }}
             // or {{ allowed_function_name(1234) }}
-            $regex = preg_quote('{{') .
-                '\s*' .
-                preg_quote($name) .
-                '\s*' .
-                '(\(([^\)]*)\))?' . // optional brackets with optional argument between
-                '\s*' .
+            $regex = preg_quote('{{').
+                '\s*'.
+                preg_quote($name).
+                '\s*'.
+                '(\(([^\)]*)\))?'. // optional brackets with optional argument between
+                '\s*'.
                 preg_quote('}}');
 
-            preg_match('/' . $regex . '/', $wysiwyg, $matches);
+            preg_match('/'.$regex.'/', $wysiwyg, $matches);
 
             if ($matches) {
                 $find = $matches[0];
@@ -157,7 +157,7 @@ class Wysiwyg
             }
 
             if ($regex) {
-                $wysiwyg = preg_replace('/' . $regex . '/', '', $wysiwyg);
+                $wysiwyg = preg_replace('/'.$regex.'/', '', $wysiwyg);
             }
         }
 
@@ -195,7 +195,7 @@ class Wysiwyg
             $end
         );
 
-        $regex = [preg_quote($open) . '(-|~)?'];
+        $regex = [preg_quote($open).'(-|~)?'];
 
         foreach ($tokens as $token) {
             if ($token->test(Token::STRING_TYPE)) {
@@ -203,7 +203,7 @@ class Wysiwyg
 
                 // look for the string value surrounded
                 // by either single or double quotes
-                $regex[] = '(' . "'" . $r . "'" . '|' . '"' . $r . '"' . ')';
+                $regex[] = '('."'".$r."'".'|"'.$r.'")';
             } elseif ($token->test(Token::INTERPOLATION_START_TYPE)) {
                 $regex[] = preg_quote('#{');
             } elseif ($token->test(Token::INTERPOLATION_END_TYPE)) {
@@ -213,7 +213,7 @@ class Wysiwyg
             }
         }
 
-        $regex[] = '(-|~)?' . preg_quote($close);
+        $regex[] = '(-|~)?'.preg_quote($close);
 
         return implode('\s*', $regex);
     }
@@ -224,7 +224,7 @@ class Wysiwyg
 
         do {
             $tokens[] = $tokenStream->next();
-        } while(!$tokenStream->test($end));
+        } while (!$tokenStream->test($end));
 
         return $tokens;
     }

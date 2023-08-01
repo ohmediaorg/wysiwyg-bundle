@@ -3,7 +3,6 @@
 namespace OHMedia\WysiwygBundle\Twig\Extension;
 
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
 abstract class AbstractWysiwygExtension extends AbstractExtension
 {

@@ -4,14 +4,11 @@ namespace OHMedia\WysiwygBundle\Form\Type;
 
 use OHMedia\WysiwygBundle\Service\Wysiwyg;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WysiwygType extends AbstractType
@@ -26,7 +23,7 @@ class WysiwygType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'allowed_tags' => null
+            'allowed_tags' => null,
         ]);
     }
 
