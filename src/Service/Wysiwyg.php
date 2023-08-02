@@ -99,12 +99,15 @@ class Wysiwyg
         foreach ($this->functions as $name) {
             // we allow {{ allowed_function_name }}
             // or {{ allowed_function_name() }}
-            // or {{ allowed_function_name(1234) }}
+            // or {{ allowed_function_name(12) }}
+            // or {{ allowed_function_name(34, 56) }}
+            // etc.
             $regex = preg_quote('{{').
                 '\s*'.
                 preg_quote($name).
                 '\s*'.
-                '(\(([^\)]*)\))?'. // optional brackets with optional argument between
+                 // optional brackets with optional interger arguments
+                '(\(([^\)]*)\))?'.
                 '\s*'.
                 preg_quote('}}');
 
@@ -112,7 +115,14 @@ class Wysiwyg
 
             if ($matches) {
                 $find = $matches[0];
-                $arg = isset($matches[2]) ? intval(trim($matches[2])) : '';
+                $args = isset($matches[2]) ? $matches[2] : '';
+                $args = explode(',', $args);
+
+                foreach ($args as $i => $arg) {
+                    $args[$i] = intval(trim($arg));
+                }
+
+                $args = implode(', ', $args);
 
                 $hash = hash($this->algo, $find);
 
@@ -120,7 +130,7 @@ class Wysiwyg
 
                 $this->hashMap[$hash] = [
                     'name' => $name,
-                    'arg' => $arg ?: '',
+                    'args' => $args,
                 ];
             }
         }
@@ -132,7 +142,7 @@ class Wysiwyg
     {
         foreach ($this->hashMap as $hash => $func) {
             // restore the allowed twig syntax
-            $replace = sprintf('{{ %s(%s) }}', $func['name'], $func['arg']);
+            $replace = sprintf('{{ %s(%s) }}', $func['name'], $func['args']);
 
             $wysiwyg = str_replace($hash, $replace, $wysiwyg);
         }
