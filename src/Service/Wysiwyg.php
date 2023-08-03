@@ -74,11 +74,30 @@ class Wysiwyg
 
     public function filterTwig(string $wysiwyg): string
     {
-        $wysiwyg = $this->preserveTwigSyntax($wysiwyg);
+        $source = new Source($wysiwyg, '');
+        $tokenStream = $this->twig->tokenize($source);
 
-        $wysiwyg = $this->stripTwigSyntax($wysiwyg);
+        while (!$tokenStream->isEOF()) {
+            $token = $tokenStream->next();
 
-        $wysiwyg = $this->restoreTwigSyntax($wysiwyg);
+            if ($token->test(Token::BLOCK_START_TYPE)) {
+                $regex = $this->buildBlockRegex($tokenStream);
+
+                $wysiwyg = preg_replace('/'.$regex.'/', '', $wysiwyg);
+            } elseif ($token->test(Token::VAR_START_TYPE)) {
+                $regex = $this->buildVariableRegex($tokenStream);
+
+                preg_match('/'.$regex.'/', $wysiwyg, $matches);
+
+                if (!$matches) {
+                    continue;
+                }
+
+                $replace = $this->getVariableRegexReplacement($matches);
+
+                $wysiwyg = preg_replace('/'.$regex.'/', $replace, $wysiwyg);
+            }
+        }
 
         return $wysiwyg;
     }
@@ -92,86 +111,53 @@ class Wysiwyg
         return strip_tags($wysiwyg, $allowedTags);
     }
 
-    private function preserveTwigSyntax(string $wysiwyg): string
+    private function getVariableRegexReplacement(array $matches): string
     {
-        $this->hashMap = [];
+        if (!in_array($matches[2], $this->functions)) {
+            return '';
+        }
 
-        foreach ($this->functions as $name) {
-            // we allow {{ allowed_function_name }}
-            // or {{ allowed_function_name() }}
-            // or {{ allowed_function_name(12) }}
-            // or {{ allowed_function_name(34, 56) }}
-            // etc.
-            $regex = preg_quote('{{').
-                '\s*'.
-                preg_quote($name).
-                '\s*'.
-                 // optional brackets with optional interger arguments
-                '(\(([^\)]*)\))?'.
-                '\s*'.
-                preg_quote('}}');
+        $replace = '{{ '.$matches[2].'(';
 
-            preg_match('/'.$regex.'/', $wysiwyg, $matches);
+        $sq = "'";
+        $dq = '"';
 
-            if ($matches) {
-                $find = $matches[0];
-                $args = isset($matches[2]) ? $matches[2] : '';
-                $args = explode(',', $args);
+        $last = count($matches) - 1;
 
-                foreach ($args as $i => $arg) {
-                    $args[$i] = intval(trim($arg));
+        if (isset($matches[3]) && '(' === $matches[3]) {
+            $args = array_slice($matches, 4, $last - 4);
+
+            $args = implode('', $args);
+
+            $args = explode(',', $args);
+
+            foreach ($args as $i => $arg) {
+                $arg = trim($arg);
+
+                if (str_starts_with($arg, $sq) && str_ends_with($arg, $sq)) {
+                    // string surrounded by single-quotes
+                    // give back a string escaped and surrounded by double-quotes
+                    $arg = $dq.addslashes(trim($arg, $sq)).$dq;
+                } elseif (str_starts_with($arg, $dq) && str_ends_with($arg, $dq)) {
+                    // string surrounded by double-quotes
+                    // give back a string escaped and surrounded by double-quotes
+                    $arg = $dq.addslashes(trim($arg, $dq)).$dq;
+                } else {
+                    // not a string - force int
+                    $arg = intval($arg);
                 }
 
-                $args = implode(', ', $args);
-
-                $hash = hash($this->algo, $find);
-
-                $wysiwyg = str_replace($find, $hash, $wysiwyg);
-
-                $this->hashMap[$hash] = [
-                    'name' => $name,
-                    'args' => $args,
-                ];
-            }
-        }
-
-        return $wysiwyg;
-    }
-
-    private function restoreTwigSyntax(string $wysiwyg): string
-    {
-        foreach ($this->hashMap as $hash => $func) {
-            // restore the allowed twig syntax
-            $replace = sprintf('{{ %s(%s) }}', $func['name'], $func['args']);
-
-            $wysiwyg = str_replace($hash, $replace, $wysiwyg);
-        }
-
-        return $wysiwyg;
-    }
-
-    private function stripTwigSyntax(string $wysiwyg): string
-    {
-        $source = new Source($wysiwyg, '');
-        $tokenStream = $this->twig->tokenize($source);
-
-        while (!$tokenStream->isEOF()) {
-            $token = $tokenStream->next();
-
-            if ($token->test(Token::BLOCK_START_TYPE)) {
-                $regex = $this->buildBlockRegex($tokenStream);
-            } elseif ($token->test(Token::VAR_START_TYPE)) {
-                $regex = $this->buildVariableRegex($tokenStream);
-            } else {
-                $regex = null;
+                $args[$i] = $arg;
             }
 
-            if ($regex) {
-                $wysiwyg = preg_replace('/'.$regex.'/', '', $wysiwyg);
-            }
+            $args = implode(', ', $args);
+
+            $replace .= $args;
         }
 
-        return $wysiwyg;
+        $replace .= ') }}';
+
+        return $replace;
     }
 
     private function buildBlockRegex(TokenStream $tokenStream): string
@@ -219,7 +205,7 @@ class Wysiwyg
             } elseif ($token->test(Token::INTERPOLATION_END_TYPE)) {
                 $regex[] = preg_quote('}');
             } else {
-                $regex[] = preg_quote($token->getValue());
+                $regex[] = '('.preg_quote($token->getValue()).')';
             }
         }
 
