@@ -62,12 +62,12 @@ functions can have a single integer parameter at most. No variables, filters, et
 This keeps the syntax simple for the average user.
 
 Create an extension as usual, but extend
-`OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension`:
+`OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension`:
 
 ```php
 namespace App\Twig;
 
-use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
+use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
 use Twig\TwigFunction;
 
 class WysiwygExtension extends AbstractWysiwygExtension
@@ -95,7 +95,7 @@ use OHMedia\WysiwygBundle\Service\Wysiwyg;
 public function myControllerAction(Wysiwyg $wysiwyg)
 {
     $description = $myEntity->getDescription();
-    
+
     $rendered = $wysiwyg->render($description);
 }
 ```

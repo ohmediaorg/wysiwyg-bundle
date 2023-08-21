@@ -2,7 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\DependencyInjection;
 
-use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
+use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;

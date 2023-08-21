@@ -2,7 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\Service;
 
-use OHMedia\WysiwygBundle\Twig\Extension\AbstractWysiwygExtension;
+use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Token;

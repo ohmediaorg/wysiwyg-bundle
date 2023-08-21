@@ -1,6 +1,6 @@
 <?php
 
-namespace OHMedia\WysiwygBundle\Twig\Extension;
+namespace OHMedia\WysiwygBundle\Twig;
 
 use OHMedia\WysiwygBundle\Service\Wysiwyg;
 use Twig\Extension\AbstractExtension;

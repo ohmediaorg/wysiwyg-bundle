@@ -13,6 +13,6 @@ services:
         alias: OHMedia\WysiwygBundle\Form\Type\WysiwygType
 
     oh_media_wysiwyg.twig_extension:
-        class: OHMedia\WysiwygBundle\Twig\Extension\WysiwygExtension
+        class: OHMedia\WysiwygBundle\Twig\WysiwygExtension
         arguments: ["@oh_media_wysiwyg.wysiwyg"]
         tags: ["twig.extension"]
