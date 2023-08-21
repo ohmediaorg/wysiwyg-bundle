@@ -10,15 +10,12 @@ use Twig\TokenStream;
 
 class Wysiwyg
 {
-    private $algo;
     private $allowedTags;
     private $functions;
     private $twig;
 
     public function __construct(Environment $twig, array $allowedTags)
     {
-        $this->algo = \PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128';
-
         $this->allowedTags = $allowedTags;
 
         $this->twig = $twig;
