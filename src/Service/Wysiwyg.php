@@ -124,9 +124,11 @@ class Wysiwyg
         if (isset($matches[3]) && '(' === $matches[3]) {
             $args = array_slice($matches, 4, $last - 4);
 
-            $args = implode('', $args);
+            if ($args) {
+                $args = implode('', $args);
 
-            $args = explode(',', $args);
+                $args = explode(',', $args);
+            }
 
             foreach ($args as $i => $arg) {
                 $arg = trim($arg);
