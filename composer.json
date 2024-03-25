@@ -3,7 +3,7 @@
     "type": "symfony-bundle",
     "description": "Symfony WysiwygBundle",
     "keywords": ["Wysiwyg"],
-    "license": "MIT",
+    "license": "proprietary",
     "authors": [
         {
             "name": "Justin Hoffman",
