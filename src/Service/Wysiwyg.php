@@ -2,6 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\Service;
 
+use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
 use Twig\Environment;
 use Twig\Source;
@@ -12,6 +13,7 @@ class Wysiwyg
 {
     private $allowedTags;
     private $functions;
+    private $repositories;
     private $twig;
 
     public function __construct(Environment $twig, array $allowedTags)
@@ -21,6 +23,8 @@ class Wysiwyg
         $this->twig = $twig;
 
         $this->functions = [];
+
+        $this->repositories = [];
     }
 
     public function addExtension(AbstractWysiwygExtension $extension): self
@@ -32,6 +36,24 @@ class Wysiwyg
         }
 
         return $this;
+    }
+
+    public function addRepository(WysiwygRepositoryInterface $repository): self
+    {
+        $this->repositories[] = $repository;
+
+        return $this;
+    }
+
+    public function shortcodesInUse(string ...$shortcodes): bool
+    {
+        foreach ($this->repositories as $repository) {
+            if ($repository->containsWysiwygShortcodes(...$shortcodes)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function isValid(string $wysiwyg): bool
