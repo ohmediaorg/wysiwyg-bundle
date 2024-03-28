@@ -2,6 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\DependencyInjection;
 
+use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -35,6 +36,10 @@ class OHMediaWysiwygExtension extends Extension
 
         $container->registerForAutoconfiguration(AbstractWysiwygExtension::class)
             ->addTag('oh_media_wysiwyg.extension')
+        ;
+
+        $container->registerForAutoconfiguration(WysiwygRepositoryInterface::class)
+            ->addTag('oh_media_wysiwyg.repository')
         ;
     }
 }
