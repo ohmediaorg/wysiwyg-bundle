@@ -22,5 +22,11 @@ class WysiwygPass implements CompilerPassInterface
         foreach ($tagged as $id => $tags) {
             $definition->addMethodCall('addExtension', [new Reference($id)]);
         }
+
+        $tagged = $container->findTaggedServiceIds('oh_media_wysiwyg.repository');
+
+        foreach ($tagged as $id => $tags) {
+            $definition->addMethodCall('addRepository', [new Reference($id)]);
+        }
     }
 }
