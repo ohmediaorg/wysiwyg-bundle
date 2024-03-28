@@ -120,3 +120,64 @@ or in Twig:
 ```twig
 {{ wysiwyg(myEntity.description, ['p', 'div', 'span']) }}
 ```
+
+## Prevent Entity Deletion
+
+You may want to prevent certain Entities from being deleted if a corresponding shortcode is in use.
+
+A Repository can implement `OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface`
+to check for fields containing the shortcodes.
+
+```php
+public function containsWysiwygShortcodes(string ...$shortcodes): bool
+{
+    foreach ($shortcodes as $shortcode) {
+        // do a COUNT query with a LIKE clause on some field
+        // if count > 0, return true
+    }
+
+    return false;
+}
+```
+
+Voters can utilize the `OHMedia\WysiwygBundle\Service\Wysiwyg` service to check 
+a variadic of strings as `$shortcodes`:
+
+```php
+<?php
+
+namespace App\Security\Voter;
+
+use App\Entity\Article;
+use OHMedia\SecurityBundle\Entity\User;
+use OHMedia\SecurityBundle\Security\Voter\AbstractEntityVoter;
+use OHMedia\WysiwygBundle\Service\Wysiwyg;
+
+class ArticleVoter extends AbstractEntityVoter
+{
+    // ...
+
+    public const DELETE = 'delete';
+
+    private Wysiwyg $wysiwyg;
+
+    public function __construct(Wysiwyg $wysiwyg)
+    {
+        $this->wysiwyg = $wysiwyg;
+    }
+
+    // ...
+
+    protected function canDelete(Article $article, User $loggedIn): bool
+    {
+        // ...
+
+        $shortcodes = [
+            sprintf('{{ article_preview(%d) }}', $article->getId()),
+            sprintf('{{ article_full(%d) }}', $article->getId()),
+        ];
+
+        return !$this->wysiwyg->shortcodesInUse(...$shortcodes);
+    }
+}
+```
