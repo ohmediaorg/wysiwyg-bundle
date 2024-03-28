@@ -126,7 +126,8 @@ or in Twig:
 You may want to prevent certain Entities from being deleted if a corresponding shortcode is in use.
 
 A Repository can implement `OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface`
-to check for fields containing the shortcodes.
+to check for fields containing the shortcodes. This would be for any DB value that could contain
+a shortcode that is rendered with `{{ wysiwyg(value) }}`.
 
 ```php
 public function containsWysiwygShortcodes(string ...$shortcodes): bool
