@@ -57,9 +57,9 @@ You will need to apply your preferred WYSIWYG editor to the field manually.
 
 ## Twig Functions
 
-You can define simple twig functions for use in the Wysiwyg field content. These
-functions can have a single integer parameter at most. No variables, filters, etc.
-This keeps the syntax simple for the average user.
+You can define simple twig functions for use in the Wysiwyg field content. For
+the most part, these functions should have at most a singluar integer parameter.
+No variables, filters, etc. This keeps the syntax simple for the average user.
 
 Create an extension as usual, but extend
 `OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension`:
@@ -83,6 +83,24 @@ class WysiwygExtension extends AbstractWysiwygExtension
 
 You will only be able to define the `getFunctions` function, but every Twig
 function you define this way can be used in a Wysiwyg form field.
+
+**IMPORTANT: if your function will result in further calls to the Wysiwyg render
+function, you NEED TO implement something to prevent infinite recursion.**
+
+```php
+private int $renders = 0;
+
+public function myCustomFunction()
+{
+    if ($this->renders > 5) {
+        return '';
+    }
+
+    $this->renders++;
+
+    // ...
+}
+```
 
 ## Rendering
 
@@ -141,7 +159,7 @@ public function containsWysiwygShortcodes(string ...$shortcodes): bool
 }
 ```
 
-Voters can utilize the `OHMedia\WysiwygBundle\Service\Wysiwyg` service to check 
+Voters can utilize the `OHMedia\WysiwygBundle\Service\Wysiwyg` service to check
 a variadic of strings as `$shortcodes`:
 
 ```php
