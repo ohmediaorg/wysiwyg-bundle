@@ -8,11 +8,8 @@ use Twig\TwigFunction;
 
 class WysiwygExtension extends AbstractExtension
 {
-    private $wysiwyg;
-
-    public function __construct(Wysiwyg $wysiwyg)
+    public function __construct(private Wysiwyg $wysiwyg)
     {
-        $this->wysiwyg = $wysiwyg;
     }
 
     public function getFunctions(): array

@@ -1,0 +1,13 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    OHMedia\WysiwygBundle\:
+        resource: '../src/'
+        exclude:
+            - '../src/OHMediaWysiwygBundle.php'
+            - '../src/DependencyInjection/'
+            - '../src/Repository/WysiwygRepositoryInterface.php'
+            - '../src/Twig/AbstractWysiwygExtension.php'
+            - '../src/Util/HtmlTags.php'

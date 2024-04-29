@@ -178,11 +178,8 @@ class ArticleVoter extends AbstractEntityVoter
 
     public const DELETE = 'delete';
 
-    private Wysiwyg $wysiwyg;
-
-    public function __construct(Wysiwyg $wysiwyg)
+    public function __construct(private Wysiwyg $wysiwyg)
     {
-        $this->wysiwyg = $wysiwyg;
     }
 
     // ...

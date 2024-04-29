@@ -17,11 +17,8 @@ class WysiwygType extends AbstractType
 {
     public const WYSIWYG_HTML_CLASS = 'wysiwyg';
 
-    private $wysiwyg;
-
-    public function __construct(Wysiwyg $wysiwyg)
+    public function __construct(private Wysiwyg $wysiwyg)
     {
-        $this->wysiwyg = $wysiwyg;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

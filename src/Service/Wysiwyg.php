@@ -4,26 +4,25 @@ namespace OHMedia\WysiwygBundle\Service;
 
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Token;
 use Twig\TokenStream;
 
+#[AsAlias(id: 'oh_media_wysiwyg.wysiwyg')]
 class Wysiwyg
 {
-    private $allowedTags;
-    private $functions;
-    private $repositories;
-    private $twig;
+    private array $functions;
+    private array $repositories;
 
-    public function __construct(Environment $twig, array $allowedTags)
-    {
-        $this->allowedTags = $allowedTags;
-
-        $this->twig = $twig;
-
+    public function __construct(
+        private Environment $twig,
+        #[Autowire('%oh_media_wysiwyg.allowed_tags%')]
+        private array $allowedTags
+    ) {
         $this->functions = [];
-
         $this->repositories = [];
     }
 
