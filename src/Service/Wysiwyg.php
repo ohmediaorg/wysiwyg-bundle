@@ -4,14 +4,11 @@ namespace OHMedia\WysiwygBundle\Service;
 
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
-use Symfony\Component\DependencyInjection\Attribute\AsAlias;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Token;
 use Twig\TokenStream;
 
-#[AsAlias(id: 'oh_media_wysiwyg.wysiwyg')]
 class Wysiwyg
 {
     private array $functions;
@@ -19,7 +16,6 @@ class Wysiwyg
 
     public function __construct(
         private Environment $twig,
-        #[Autowire('%oh_media_wysiwyg.allowed_tags%')]
         private array $allowedTags
     ) {
         $this->functions = [];

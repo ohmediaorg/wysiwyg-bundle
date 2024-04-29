@@ -1,13 +1,13 @@
 services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
+    OHMedia\WysiwygBundle\Service\Wysiwyg:
+        arguments: ["@twig", "%oh_media_wysiwyg.allowed_tags%"]
 
-    OHMedia\WysiwygBundle\:
-        resource: '../src/'
-        exclude:
-            - '../src/OHMediaWysiwygBundle.php'
-            - '../src/DependencyInjection/'
-            - '../src/Repository/WysiwygRepositoryInterface.php'
-            - '../src/Twig/AbstractWysiwygExtension.php'
-            - '../src/Util/HtmlTags.php'
+    oh_media_wysiwyg.wysiwyg: '@OHMedia\WysiwygBundle\Service\Wysiwyg'
+
+    OHMedia\WysiwygBundle\Form\Type\WysiwygType:
+        arguments: ["@oh_media_wysiwyg.wysiwyg"]
+        tags: ["form.type"]
+
+    OHMedia\WysiwygBundle\Twig\WysiwygExtension:
+        arguments: ["@oh_media_wysiwyg.wysiwyg"]
+        tags: ["twig.extension"]
