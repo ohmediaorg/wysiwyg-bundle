@@ -16,5 +16,10 @@
     },
     "autoload": {
         "psr-4": { "OHMedia\\WysiwygBundle\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "OHMedia\\WysiwygBundle\\Tests\\": "tests/"
+        }
     }
 }
