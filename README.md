@@ -5,14 +5,16 @@ while filtering out anything else.
 
 ## Installation
 
-Enable the bundle in `config/bundles.php`:
+Update `composer.json` by adding this to the `repositories` array:
 
-```php
-return [
-    // ...
-    OHMedia\WysiwygBundle\OHMediaWysiwygBundle::class => ['all' => true],
-];
+```json
+{
+    "type": "vcs",
+    "url": "https://github.com/ohmediaorg/wysiwyg-bundle"
+}
 ```
+
+Then run `composer require ohmediaorg/wysiwyg-bundle:dev-main`.
 
 Create the minimum config file in `config/oh_media_wysiwyg.yaml`:
 
