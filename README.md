@@ -43,7 +43,7 @@ use OHMedia\WysiwygBundle\Form\Type\WysiwygType;
 $builder->add('description', WysiwygType::class);
 ```
 
-You can also specified allowed tags per form field:
+You can also specify allowed tags per form field:
 
 ```php
 use OHMedia\WysiwygBundle\Form\Type\WysiwygType;
@@ -58,7 +58,7 @@ You will need to apply your preferred WYSIWYG editor to the field manually.
 ## Twig Functions
 
 You can define simple twig functions for use in the Wysiwyg field content. For
-the most part, these functions should have at most a singluar integer parameter.
+the most part, these functions should have at most a singular integer parameter.
 No variables, filters, etc. This keeps the syntax simple for the average user.
 
 Create an extension as usual, but extend
@@ -121,7 +121,7 @@ public function myControllerAction(Wysiwyg $wysiwyg)
 or the Twig function:
 
 ```twig
-{{ wysiwyg(myEntity.description) }}
+{{ wysiwyg(my_entity.description) }}
 ```
 
 If you overwrote the `allowed_tags` in the form field, you will need to pass
@@ -136,16 +136,17 @@ $rendered = $wysiwyg->render($description, ['p', 'div', 'span']);
 or in Twig:
 
 ```twig
-{{ wysiwyg(myEntity.description, ['p', 'div', 'span']) }}
+{{ wysiwyg(my_entity.description, ['p', 'div', 'span']) }}
 ```
 
 ## Prevent Entity Deletion
 
-You may want to prevent certain Entities from being deleted if a corresponding shortcode is in use.
+You may want to prevent certain Entities from being deleted if a corresponding
+"shortcode" is in use.
 
 A Repository can implement `OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface`
-to check for fields containing the shortcodes. This would be for any DB value that could contain
-a shortcode that is rendered with `{{ wysiwyg(value) }}`.
+to check for fields containing the shortcodes. This would be for any DB value
+that could contain a shortcode that is rendered with `{{ wysiwyg(value) }}`.
 
 ```php
 public function containsWysiwygShortcodes(string ...$shortcodes): bool
