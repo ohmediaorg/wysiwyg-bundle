@@ -131,7 +131,7 @@ class Wysiwyg
             return '';
         }
 
-        $replace = '{{ '.$matches[2].'(';
+        $replace = '{{'.$matches[2].'(';
 
         $sq = "'";
         $dq = '"';
@@ -171,7 +171,7 @@ class Wysiwyg
             $replace .= $args;
         }
 
-        $replace .= ') }}';
+        $replace .= ')}}';
 
         return $replace;
     }
