@@ -192,8 +192,8 @@ class ArticleVoter extends AbstractEntityVoter
         // ...
 
         $shortcodes = [
-            sprintf('{{ article_preview(%d) }}', $article->getId()),
-            sprintf('{{ article_full(%d) }}', $article->getId()),
+            sprintf('article_preview(%d)', $article->getId()),
+            sprintf('article_full(%d)', $article->getId()),
         ];
 
         return !$this->wysiwyg->shortcodesInUse(...$shortcodes);

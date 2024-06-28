@@ -42,6 +42,12 @@ class Wysiwyg
 
     public function shortcodesInUse(string ...$shortcodes): bool
     {
+        foreach ($shortcodes as $i => $shortcode) {
+            $shortcode = ltrim($shortcode, '{{');
+            $shortcode = rtrim($shortcode, '}}');
+            $shortcodes[$i] = '{{'.trim($shortcode).'}}';
+        }
+
         foreach ($this->repositories as $repository) {
             if ($repository->containsWysiwygShortcodes(...$shortcodes)) {
                 return true;
