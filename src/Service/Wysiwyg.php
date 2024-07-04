@@ -4,6 +4,7 @@ namespace OHMedia\WysiwygBundle\Service;
 
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
+use OHMedia\WysiwygBundle\Util\Shortcode;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Token;
@@ -43,9 +44,7 @@ class Wysiwyg
     public function shortcodesInUse(string ...$shortcodes): bool
     {
         foreach ($shortcodes as $i => $shortcode) {
-            $shortcode = ltrim($shortcode, '{{');
-            $shortcode = rtrim($shortcode, '}}');
-            $shortcodes[$i] = '{{'.trim($shortcode).'}}';
+            $shortcodes[$i] = Shortcode::format($shortcode);
         }
 
         foreach ($this->repositories as $repository) {
