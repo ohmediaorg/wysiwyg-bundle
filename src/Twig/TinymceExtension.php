@@ -3,6 +3,7 @@
 namespace OHMedia\WysiwygBundle\Twig;
 
 use OHMedia\FileBundle\Service\FileBrowser;
+use OHMedia\WysiwygBundle\Util\HtmlTags;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -23,9 +24,7 @@ class TinymceExtension extends AbstractExtension
             $this->plugins = str_replace([' ohfilebrowser', 'ohfilebrowser '], '', $this->plugins);
         }
 
-        $this->validElements = implode(',', array_map(function ($tag) {
-            return $tag.'[*]';
-        }, $allowedTags));
+        $this->validElements = HtmlTags::htmlTagsToTinymceElements($allowedTags);
     }
 
     public function getFunctions(): array
