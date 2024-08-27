@@ -21,6 +21,7 @@ class WysiwygType extends AbstractType
     {
         $resolver->setDefaults([
             'allowed_tags' => null,
+            'allow_shortcodes' => true,
             'attr' => [
                 'class' => 'tinymce',
             ],
@@ -37,7 +38,8 @@ class WysiwygType extends AbstractType
                 if ($this->wysiwyg->isValid($data)) {
                     $filtered = $this->wysiwyg->filter(
                         $data,
-                        $options['allowed_tags']
+                        $options['allowed_tags'],
+                        $options['allow_shortcodes']
                     );
 
                     $event->setData($filtered);
