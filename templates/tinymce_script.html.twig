@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   window.initTinyMCEContentlinkPlugin('{{ path('tinymce_contentlinks') }}');
 
-  OH_MEDIA_TINYMCE(document, 'textarea.wysiwyg');
+  OH_MEDIA_TINYMCE(document, 'textarea.tinymce');
 
   const observer = new MutationObserver(function(mutationList, observer) {
     for (const mutation of mutationList) {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         continue;
       }
 
-      OH_MEDIA_TINYMCE(mutation.target, 'textarea.wysiwyg');
+      OH_MEDIA_TINYMCE(mutation.target, 'textarea.tinymce');
     }
   });
 
