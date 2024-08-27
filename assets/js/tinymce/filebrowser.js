@@ -317,7 +317,9 @@ export default function (filesUrl) {
         }
       }
 
-      const savedUrl = localStorage.getItem('tinymce_filebrowser_url');
+      const savedUrl = localStorage.getItem(
+        'oh_media_wysiwyg_tinymce_filebrowser_url'
+      );
 
       populateFiles(savedUrl ?? filesUrl);
     }

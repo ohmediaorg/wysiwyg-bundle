@@ -9,17 +9,16 @@ use OHMedia\FileBundle\Service\FileBrowser;
 use OHMedia\FileBundle\Service\FileManager;
 use OHMedia\FileBundle\Service\ImageManager;
 use OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager;
-use OHMedia\WysiwygBundle\Routing\Attribute\Admin;
 use OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Admin]
+#[Route('/oh-media-wysiwyg/tinymce')]
 class TinyMCEController extends AbstractController
 {
-    #[Route('/tinymce/shortcodes', name: 'tinymce_shortcodes')]
+    #[Route('/shortcodes', name: 'tinymce_shortcodes')]
     public function shortcodes(ShortcodeManager $shortcodeManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
@@ -27,7 +26,7 @@ class TinyMCEController extends AbstractController
         return new JsonResponse($shortcodeManager->getShortcodes());
     }
 
-    #[Route('/tinymce/contentlinks', name: 'tinymce_contentlinks')]
+    #[Route('/contentlinks', name: 'tinymce_contentlinks')]
     public function contentLinks(ContentLinkManager $contentLinkManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
@@ -35,7 +34,7 @@ class TinyMCEController extends AbstractController
         return new JsonResponse($contentLinkManager->getContentLinks());
     }
 
-    #[Route('/tinymce/filebrowser/{id}', name: 'tinymce_filebrowser')]
+    #[Route('/filebrowser/{id}', name: 'tinymce_filebrowser')]
     public function files(
         FileBrowser $fileBrowser,
         FileFolderRepository $fileFolderRepository,
