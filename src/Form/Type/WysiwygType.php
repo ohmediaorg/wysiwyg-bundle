@@ -25,9 +25,6 @@ class WysiwygType extends AbstractType
         $resolver->setDefaults([
             'allowed_tags' => null,
             'allow_shortcodes' => true,
-            'attr' => [
-                'class' => 'tinymce',
-            ],
         ]);
     }
 
@@ -59,6 +56,10 @@ class WysiwygType extends AbstractType
     {
         if (!isset($view->vars['attr'])) {
             $view->vars['attr'] = [];
+        }
+
+        if (!isset($view->vars['attr']['class'])) {
+            $view->vars['attr']['class'] = 'tinymce';
         }
 
         if (null !== $options['allowed_tags']) {
