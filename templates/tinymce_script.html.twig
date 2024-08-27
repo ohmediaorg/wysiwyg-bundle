@@ -57,20 +57,5 @@ document.addEventListener('DOMContentLoaded', function() {
   window.initTinyMCEContentlinkPlugin('{{ path('tinymce_contentlinks') }}');
 
   OH_MEDIA_TINYMCE(document, 'textarea.tinymce');
-
-  const observer = new MutationObserver(function(mutationList, observer) {
-    for (const mutation of mutationList) {
-      if ('childList' !== mutation.type) {
-        continue;
-      }
-
-      OH_MEDIA_TINYMCE(mutation.target, 'textarea.tinymce');
-    }
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
 });
 </script>
