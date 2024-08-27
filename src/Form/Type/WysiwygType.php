@@ -3,12 +3,15 @@
 namespace OHMedia\WysiwygBundle\Form\Type;
 
 use OHMedia\WysiwygBundle\Service\Wysiwyg;
+use OHMedia\WysiwygBundle\Util\HtmlTags;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WysiwygType extends AbstractType
@@ -50,6 +53,19 @@ class WysiwygType extends AbstractType
                 }
             }
         );
+    }
+
+    public function buildView(FormView $view, FormInterface $form, array $options): void
+    {
+        if (!isset($view->vars['attr'])) {
+            $view->vars['attr'] = [];
+        }
+
+        if (null !== $options['allowed_tags']) {
+            $view->vars['attr']['data-tinymce-valid-elements'] = HtmlTags::htmlTagsToTinymceElements($options['allowed_tags']);
+        }
+
+        $view->vars['attr']['data-tinymce-allow-shortcodes'] = $options['allow_shortcodes'] ? 'true' : 'false';
     }
 
     public function getParent(): ?string

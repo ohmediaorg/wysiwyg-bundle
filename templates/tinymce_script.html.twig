@@ -12,21 +12,37 @@
 <script src="/backend/js/tinymce/tinymce.min.js"></script>
 
 <script async>
+const OH_MEDIA_TINYMCE_PLUGINS = {{ plugins|js }};
+const OH_MEDIA_TINYMCE_MENU = {{ menu|js }};
+const OH_MEDIA_TINYMCE_TOOLBAR = {{ toolbar|js }};
+const OH_MEDIA_TINYMCE_VALID_ELEMENTS = {{ valid_elements|js }};
+
 function OH_MEDIA_TINYMCE(container, selector) {
   const els = container.querySelectorAll(selector);
 
   els.forEach(el => {
     el.required = false;
 
+    let plugins = OH_MEDIA_TINYMCE_PLUGINS;
+
+    if ('false' === el.dataset.tinymceAllowShortcodes) {
+      plugins = plugins
+        .replace('ohshortcodes', '')
+        .replace('ohfilebrowser', '')
+        .replace('ohcontentlinks', '');
+    }
+
+    const validElements = el.dataset.tinymceValidElements ?? OH_MEDIA_TINYMCE_VALID_ELEMENTS;
+
     tinymce.init({
       target: el,
-      plugins: {{ plugins|js }},
-      menu: {{ menu|js }},
-      toolbar: {{ toolbar|js }},
+      plugins: OH_MEDIA_TINYMCE_PLUGINS,
+      menu: OH_MEDIA_TINYMCE_MENU,
+      toolbar: OH_MEDIA_TINYMCE_TOOLBAR,
       toolbar_mode: 'wrap',
       license_key: 'gpl',
       max_height: 600,
-      valid_elements: {{ valid_elements|js }},
+      valid_elements: validElements,
     });
   });
 }
