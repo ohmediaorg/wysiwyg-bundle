@@ -31,7 +31,12 @@ services:
             - { name: twig.extension }
 
     OHMedia\WysiwygBundle\Twig\TinymceExtension:
-        arguments: ["@oh_media_file.file_browser", "%oh_media_wysiwyg.tinymce.plugins%", "%oh_media_wysiwyg.tinymce.toolbar%", "%oh_media_wysiwyg.allowed_tags%"]
+        arguments:
+          - "@oh_media_file.file_browser"
+          - "%oh_media_wysiwyg.tinymce.plugins%"
+          - "%oh_media_wysiwyg.tinymce.menu%"
+          - "%oh_media_wysiwyg.tinymce.toolbar%"
+          - "%oh_media_wysiwyg.allowed_tags%"
         public: false
         tags:
             - { name: twig.extension }

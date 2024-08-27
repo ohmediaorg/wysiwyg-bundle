@@ -10,10 +10,12 @@ function OH_MEDIA_TINYMCE(container, selector) {
     tinymce.init({
       target: el,
       plugins: {{ plugins|json_encode|raw }},
+      menu: {{ menu|json_encode|raw }},
       toolbar: {{ toolbar|json_encode|raw }},
+      toolbar_mode: 'wrap',
       license_key: 'gpl',
       max_height: 600,
-      valid_elements: {{ allowed_tags|join(',')|json_encode|raw }}
+      valid_elements: {{ allowed_tags|json_encode|raw }},
     });
   });
 }

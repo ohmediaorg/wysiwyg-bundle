@@ -10,25 +10,23 @@ use Twig\TwigFunction;
 class TinymceExtension extends AbstractExtension
 {
     private bool $rendered = false;
-    private string $toolbar;
-    private array $allowedTags;
+    private string $allowedTags;
 
     public function __construct(
         private FileBrowser $fileBrowser,
         private string $plugins,
-        array $toolbar,
+        private array $menu,
+        private string $toolbar,
         array $allowedTags,
     ) {
-        $this->toolbar = implode(' | ', $toolbar);
-
         if (!$this->fileBrowser->isEnabled()) {
             $this->plugins = str_replace([' ohfilebrowser', 'ohfilebrowser '], '', $this->plugins);
             $this->toolbar = str_replace([' ohfilebrowser', 'ohfilebrowser '], '', $this->toolbar);
         }
 
-        $this->allowedTags = array_map(function ($tag) {
+        $this->allowedTags = implode(',', array_map(function ($tag) {
             return $tag.'[*]';
-        }, $allowedTags);
+        }, $allowedTags));
     }
 
     public function getFunctions(): array
@@ -51,6 +49,7 @@ class TinymceExtension extends AbstractExtension
 
         return $env->render('@OHMediaWysiwyg/tinymce_script.html.twig', [
             'plugins' => $this->plugins,
+            'menu' => $this->menu,
             'toolbar' => $this->toolbar,
             'file_browser_enabled' => $this->fileBrowser->isEnabled(),
             'allowed_tags' => $this->allowedTags,

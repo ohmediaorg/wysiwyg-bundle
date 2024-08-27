@@ -28,6 +28,12 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
     public function configure(DefinitionConfigurator $definition): void
     {
+        $this->configureTags($definition);
+        $this->configureTinymce($definition);
+    }
+
+    private function configureTags(DefinitionConfigurator $definition): void
+    {
         $allowedTags = $definition->rootNode()
             ->children()
                 ->arrayNode('tags')
@@ -46,23 +52,89 @@ class OHMediaWysiwygBundle extends AbstractBundle
         }
 
         $allowedTags->end()->end();
+    }
+
+    private function configureTinymce(DefinitionConfigurator $definition): void
+    {
+        $plugins = [
+            'autoresize',
+            'code',
+            'link',
+            'lists',
+            'ohshortcodes',
+            'ohfilebrowser',
+            'ohcontentlinks',
+        ];
+
+        $menu = [];
+
+        $menu['file'] = [
+            'title' => 'File',
+            'items' => 'newdocument restoredraft | preview | importword exportpdf exportword | print | deleteallconversations',
+        ];
+
+        $menu['edit'] = [
+            'title' => 'Edit',
+            'items' => 'undo redo | cut copy paste pastetext | selectall | searchreplace',
+        ];
+
+        $menu['view'] = [
+            'title' => 'View',
+            'items' => 'code revisionhistory | visualaid visualchars visualblocks | spellchecker | preview fullscreen | showcomments',
+        ];
+
+        $menu['insert'] = [
+            'title' => 'Insert',
+            'items' => 'image link media addcomment pageembed codesample inserttable | math | charmap emoticons hr | pagebreak nonbreaking anchor tableofcontents | insertdatetime',
+        ];
+
+        $menu['format'] = [
+            'title' => 'Format',
+            'items' => 'bold italic underline strikethrough superscript subscript codeformat | styles blocks fontfamily fontsize align lineheight | forecolor backcolor | language | removeformat',
+        ];
+
+        $menu['tools'] = [
+            'title' => 'Tools',
+            'items' => 'spellchecker spellcheckerlanguage | a11ycheck code wordcount',
+        ];
+
+        $menu['table'] = [
+            'title' => 'Table',
+            'items' => 'inserttable | cell row column | advtablesort | tableprops deletetable',
+        ];
+
+        $menu['help'] = [
+            'title' => 'Help',
+            'items' => 'help',
+        ];
+
+        $toolbar = [
+            'undo redo',
+            'blocks ohshortcodes ohfilebrowser ohcontentlink',
+            'bold italic numlist bullist',
+            'alignleft aligncenter alignright alignjustify',
+            'outdent indent',
+        ];
 
         $definition->rootNode()
             ->children()
                 ->arrayNode('tinymce')
                   ->children()
                     ->scalarNode('plugins')
-                        ->defaultValue('autoresize code link lists ohshortcodes ohfilebrowser ohcontentlink')
+                        ->defaultValue(implode(' ', $plugins))
                     ->end()
-                    ->arrayNode('toolbar')
-                        ->scalarPrototype()->end()
-                        ->defaultValue([
-                            'undo redo',
-                            'blocks ohshortcodes ohfilebrowser ohcontentlink',
-                            'bold italic numlist bullist',
-                            'alignleft aligncenter alignright alignjustify',
-                            'outdent indent',
-                        ])
+                    ->arrayNode('menu')
+                        ->useAttributeAsKey('name')
+                        ->defaultValue($menu)
+                        ->arrayPrototype()
+                            ->children()
+                                ->scalarNode('title')->end()
+                                ->scalarNode('items')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->scalarNode('toolbar')
+                        ->defaultValue(implode(' | ', $toolbar))
                     ->end()
                 ->end()
             ->end()
@@ -88,6 +160,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $containerConfigurator->parameters()
             ->set('oh_media_wysiwyg.tinymce.plugins', $config['tinymce']['plugins'])
+            ->set('oh_media_wysiwyg.tinymce.menu', $config['tinymce']['menu'])
             ->set('oh_media_wysiwyg.tinymce.toolbar', $config['tinymce']['toolbar'])
         ;
 
