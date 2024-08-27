@@ -34,6 +34,10 @@ class TinyMCEController extends AbstractController
         return new JsonResponse($contentLinkManager->getContentLinks());
     }
 
+    /**
+     * If you alter this URL, you'll need to invalidate
+     * the localstorage in filebrowser.js.
+     */
     #[Route('/filebrowser/{id}', name: 'tinymce_filebrowser')]
     public function files(
         FileBrowser $fileBrowser,
