@@ -10,4 +10,17 @@ class Shortcode
         public readonly bool $dynamic = false,
     ) {
     }
+
+    public function __toString(): string
+    {
+        return self::format($this->shortcode);
+    }
+
+    public static function format(string $shortcode): string
+    {
+        $shortcode = ltrim($shortcode, '{');
+        $shortcode = rtrim($shortcode, '}');
+
+        return '{{'.trim($shortcode).'}}';
+    }
 }

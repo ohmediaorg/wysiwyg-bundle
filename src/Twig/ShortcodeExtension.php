@@ -2,7 +2,7 @@
 
 namespace OHMedia\WysiwygBundle\Twig;
 
-use OHMedia\WysiwygBundle\Util\Shortcode;
+use OHMedia\WysiwygBundle\Shortcodes\Shortcode;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 

@@ -3,8 +3,8 @@
 namespace OHMedia\WysiwygBundle\Service;
 
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
+use OHMedia\WysiwygBundle\Shortcodes\Shortcode;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
-use OHMedia\WysiwygBundle\Util\Shortcode;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Token;
