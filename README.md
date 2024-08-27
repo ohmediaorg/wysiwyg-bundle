@@ -243,7 +243,11 @@ add the following data attributes:
 - `data-tinymce-allow-shortcodes` with a value of `false` will disable all shortcode plugins
 - `data-tinymce-valid-elements` with a valid value for `valid_elements` in tinymce.init
 
+You would then use these same values/overrides in the `wysiwyg` Twig function.
+
 If you need more customization, initialized your own with `tinymce.init({...})`.
+Just make sure if you are using a `WysiwygType::class` field in a form that you
+override the default class.
 
 ## Shortcodes
 
