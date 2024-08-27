@@ -110,7 +110,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $toolbar = [
             'undo redo',
-            'blocks ohshortcodes ohfilebrowser ohcontentlink',
+            'blocks ohshortcodes ohfilebrowser ohcontentlinks',
             'bold italic numlist bullist',
             'alignleft aligncenter alignright alignjustify',
             'outdent indent',
