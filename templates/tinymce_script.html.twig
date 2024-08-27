@@ -1,0 +1,61 @@
+<style>
+.tox-promotion,
+.tox-statusbar__branding {
+  visibility: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+</style>
+
+<script src="/backend/js/tinymce/tinymce.min.js"></script>
+
+<script async>
+const OH_MEDIA_TINYMCE_PLUGINS = {{ plugins|js }};
+const OH_MEDIA_TINYMCE_MENU = {{ menu|js }};
+const OH_MEDIA_TINYMCE_TOOLBAR = {{ toolbar|js }};
+const OH_MEDIA_TINYMCE_VALID_ELEMENTS = {{ valid_elements|js }};
+
+function OH_MEDIA_TINYMCE(container, selector) {
+  const els = container.querySelectorAll(selector);
+
+  els.forEach(el => {
+    el.required = false;
+
+    let plugins = OH_MEDIA_TINYMCE_PLUGINS;
+
+    if ('false' === el.dataset.tinymceAllowShortcodes) {
+      plugins = plugins
+        .replace('ohshortcodes', '')
+        .replace('ohfilebrowser', '')
+        .replace('ohcontentlinks', '');
+    }
+
+    const validElements = el.dataset.tinymceValidElements ?? OH_MEDIA_TINYMCE_VALID_ELEMENTS;
+
+    tinymce.init({
+      target: el,
+      plugins: plugins,
+      menu: OH_MEDIA_TINYMCE_MENU,
+      toolbar: OH_MEDIA_TINYMCE_TOOLBAR,
+      toolbar_mode: 'wrap',
+      license_key: 'gpl',
+      max_height: 600,
+      valid_elements: validElements,
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  window.initTinyMCEShortcodesPlugin('{{ path('tinymce_shortcodes') }}');
+
+  {% if file_browser_enabled %}
+  window.initTinyMCEFilebrowserPlugin('{{ path('tinymce_filebrowser') }}');
+  {% endif %}
+
+  window.initTinyMCEContentlinkPlugin('{{ path('tinymce_contentlinks') }}');
+
+  OH_MEDIA_TINYMCE(document, 'textarea.tinymce');
+});
+</script>

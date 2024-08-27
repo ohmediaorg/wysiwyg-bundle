@@ -3,8 +3,8 @@
 namespace OHMedia\WysiwygBundle\Service;
 
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
+use OHMedia\WysiwygBundle\Shortcodes\Shortcode;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
-use OHMedia\WysiwygBundle\Util\Shortcode;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Token;
@@ -67,7 +67,7 @@ class Wysiwyg
         }
     }
 
-    public function render(string $wysiwyg, array $allowedTags = null): string
+    public function render(string $wysiwyg, ?array $allowedTags = null, bool $allowShortcodes = true): string
     {
         if (!$this->isValid($wysiwyg)) {
             // Invalid Twig Syntax
@@ -82,16 +82,16 @@ class Wysiwyg
         return $this->twig->render($template);
     }
 
-    public function filter(string $wysiwyg, array $allowedTags = null): string
+    public function filter(string $wysiwyg, ?array $allowedTags = null, bool $allowShortcodes = true): string
     {
-        $wysiwyg = $this->filterTwig($wysiwyg);
+        $wysiwyg = $this->filterTwig($wysiwyg, $allowShortcodes);
 
         $wysiwyg = $this->filterHtml($wysiwyg, $allowedTags);
 
         return $wysiwyg;
     }
 
-    public function filterTwig(string $wysiwyg): string
+    public function filterTwig(string $wysiwyg, bool $allowShortcodes = true): string
     {
         $source = new Source($wysiwyg, '');
         $tokenStream = $this->twig->tokenize($source);
@@ -112,7 +112,9 @@ class Wysiwyg
                     continue;
                 }
 
-                $replace = $this->getVariableRegexReplacement($matches);
+                $replace = $allowShortcodes
+                    ? $this->getVariableRegexReplacement($matches)
+                    : '';
 
                 $wysiwyg = preg_replace('/'.$regex.'/', $replace, $wysiwyg);
             }
@@ -121,7 +123,7 @@ class Wysiwyg
         return $wysiwyg;
     }
 
-    public function filterHtml(string $wysiwyg, array $allowedTags = null): string
+    public function filterHtml(string $wysiwyg, ?array $allowedTags = null): string
     {
         if (null === $allowedTags) {
             $allowedTags = $this->allowedTags;

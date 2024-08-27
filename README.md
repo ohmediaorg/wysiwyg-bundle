@@ -16,11 +16,21 @@ Update `composer.json` by adding this to the `repositories` array:
 
 Then run `composer require ohmediaorg/wysiwyg-bundle:dev-main`.
 
+Import the routes in `config/routes.yaml`:
+
+```yaml
+oh_media_wysiwyg:
+    resource: '@OHMediaWysiwygBundle/config/routes.yaml'
+```
+
+Run `npm install tinymce`
+
 Create the minimum config file in `config/oh_media_wysiwyg.yaml`:
 
 ```yaml
 oh_media_wysiwyg:
     tags:
+    tinymce:
 ```
 
 This will enable/disable HTML tags based on constant values inside of
@@ -33,7 +43,12 @@ oh_media_wysiwyg:
     tags:
         fieldset: true
         table: false
+    tinymce:
 ```
+
+The available options under in `tinymce` are `plugins`, `menu`, and `toolbar`.
+The values of these options should mimic the value passed into the tinymce.init
+function.
 
 ## Form Field
 
@@ -200,3 +215,50 @@ class ArticleVoter extends AbstractEntityVoter
     }
 }
 ```
+
+# TinyMCE Integration
+
+## TinyMCE JS
+
+Make sure webpack encore is setup to copy TinyMCE files:
+
+```js
+.copyFiles({
+  from: './node_modules/tinymce',
+  to: 'js/tinymce/[path][name].[ext]',
+  pattern: /\.(js|min\.css)$/,
+})
+```
+
+Such that `<script src="/backend/js/tinymce/tinymce.min.js"></script>` is valid.
+
+There is a function to initialize a TinyMCE instance:
+
+```js
+OH_MEDIA_TINYMCE(container, selector);
+```
+
+This will happen automatically on page load for `textarea.tinymce`. You can also
+add the following data attributes:
+- `data-tinymce-allow-shortcodes` with a value of `false` will disable all shortcode plugins
+- `data-tinymce-valid-elements` with a valid value for `valid_elements` in tinymce.init
+
+You would then use these same values/overrides in the `wysiwyg` Twig function.
+
+If you need more customization, initialized your own with `tinymce.init({...})`.
+Just make sure if you are using a `WysiwygType::class` field in a form that you
+override the default class.
+
+## Shortcodes
+
+Shortcodes can be made available to the TinyMCE editor simply by extending
+`OHMedia\WysiwygBundle\Shortcodes\AbstractShortcodeProvider`.
+
+See [EventShortcodeProvider](https://github.com/ohmediaorg/event-bundle/blob/main/src/Service/EventShortcodeProvider.php).
+
+## Content Links
+
+Content Links can be made available to the TinyMCE editor simply by extending
+`OHMedia\WysiwygBundle\ContentLinks\AbstractContentLinkProvider`.
+
+See [PageContentLinkProvider](https://github.com/ohmediaorg/page-bundle/blob/main/src/Service/PageContentLinkProvider.php).

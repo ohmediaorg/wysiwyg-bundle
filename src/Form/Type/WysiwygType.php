@@ -3,6 +3,7 @@
 namespace OHMedia\WysiwygBundle\Form\Type;
 
 use OHMedia\WysiwygBundle\Service\Wysiwyg;
+use OHMedia\WysiwygBundle\Util\HtmlTags;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -15,8 +16,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WysiwygType extends AbstractType
 {
-    public const WYSIWYG_HTML_CLASS = 'wysiwyg';
-
     public function __construct(private Wysiwyg $wysiwyg)
     {
     }
@@ -25,6 +24,7 @@ class WysiwygType extends AbstractType
     {
         $resolver->setDefaults([
             'allowed_tags' => null,
+            'allow_shortcodes' => true,
         ]);
     }
 
@@ -38,7 +38,8 @@ class WysiwygType extends AbstractType
                 if ($this->wysiwyg->isValid($data)) {
                     $filtered = $this->wysiwyg->filter(
                         $data,
-                        $options['allowed_tags']
+                        $options['allowed_tags'],
+                        $options['allow_shortcodes']
                     );
 
                     $event->setData($filtered);
@@ -58,16 +59,14 @@ class WysiwygType extends AbstractType
         }
 
         if (!isset($view->vars['attr']['class'])) {
-            $view->vars['attr']['class'] = '';
+            $view->vars['attr']['class'] = 'tinymce';
         }
 
-        $classes = explode(' ', $view->vars['attr']['class']);
-
-        if (!in_array(self::WYSIWYG_HTML_CLASS, $classes)) {
-            $classes[] = self::WYSIWYG_HTML_CLASS;
+        if (null !== $options['allowed_tags']) {
+            $view->vars['attr']['data-tinymce-valid-elements'] = HtmlTags::htmlTagsToTinymceElements(...$options['allowed_tags']);
         }
 
-        $view->vars['attr']['class'] = implode(' ', $classes);
+        $view->vars['attr']['data-tinymce-allow-shortcodes'] = $options['allow_shortcodes'] ? 'true' : 'false';
     }
 
     public function getParent(): ?string

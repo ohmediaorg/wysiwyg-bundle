@@ -21,8 +21,8 @@ class WysiwygExtension extends AbstractExtension
         ];
     }
 
-    public function wysiwyg(?string $wysiwyg, array $allowedTags = null)
+    public function wysiwyg(?string $wysiwyg, ?array $allowedTags = null, bool $allowShortcodes = true)
     {
-        return $this->wysiwyg->render((string) $wysiwyg, $allowedTags);
+        return $this->wysiwyg->render((string) $wysiwyg, $allowedTags, $allowShortcodes);
     }
 }
