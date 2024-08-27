@@ -238,6 +238,13 @@ There is a function to initialize a TinyMCE instance:
 OH_MEDIA_TINYMCE(container, selector);
 ```
 
+This will happen automatically on page load for `textarea.tinymce`. You can also
+add the following data attributes:
+- `data-tinymce-allow-shortcodes` with a value of `false` will disable all shortcode plugins
+- `data-tinymce-valid-elements` with a valid value for `valid_elements` in tinymce.init
+
+If you need more customization, initialized your own with `tinymce.init({...})`.
+
 ## Shortcodes
 
 Shortcodes can be made available to the TinyMCE editor simply by extending
