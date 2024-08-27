@@ -27,7 +27,7 @@ class TinyMCEController extends AbstractController
         return new JsonResponse($shortcodeManager->getShortcodes());
     }
 
-    #[Route('/tinymce/content-links', name: 'tinymce_content_links')]
+    #[Route('/tinymce/contentlinks', name: 'tinymce_contentlinks')]
     public function contentLinks(ContentLinkManager $contentLinkManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
