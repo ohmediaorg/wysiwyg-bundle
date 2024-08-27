@@ -10,7 +10,7 @@ use Twig\TwigFunction;
 class TinymceExtension extends AbstractExtension
 {
     private bool $rendered = false;
-    private string $allowedTags;
+    private string $validElements;
 
     public function __construct(
         private FileBrowser $fileBrowser,
@@ -23,7 +23,7 @@ class TinymceExtension extends AbstractExtension
             $this->plugins = str_replace([' ohfilebrowser', 'ohfilebrowser '], '', $this->plugins);
         }
 
-        $this->allowedTags = implode(',', array_map(function ($tag) {
+        $this->validElements = implode(',', array_map(function ($tag) {
             return $tag.'[*]';
         }, $allowedTags));
     }
@@ -51,7 +51,7 @@ class TinymceExtension extends AbstractExtension
             'menu' => $this->menu,
             'toolbar' => $this->toolbar,
             'file_browser_enabled' => $this->fileBrowser->isEnabled(),
-            'allowed_tags' => $this->allowedTags,
+            'valid_elements' => $this->validElements,
         ]);
     }
 }
