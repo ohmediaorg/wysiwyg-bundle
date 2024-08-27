@@ -1,5 +1,5 @@
 export default function (contentlinkUrl) {
-  tinymce.PluginManager.add('ohcontentlink', (editor, url) => {
+  tinymce.PluginManager.add('ohcontentlinks', (editor, url) => {
     async function openDialog() {
       let data = null;
 
@@ -82,14 +82,14 @@ export default function (contentlinkUrl) {
       }
     }
 
-    editor.ui.registry.addButton('ohcontentlink', {
+    editor.ui.registry.addButton('ohcontentlinks', {
       name: 'Content Link',
       icon: 'link',
       tooltip: 'Content Link',
       onAction: openDialog,
     });
 
-    editor.ui.registry.addMenuItem('ohcontentlink', {
+    editor.ui.registry.addMenuItem('ohcontentlinks', {
       text: 'Content Link',
       icon: 'link',
       onAction: openDialog,
