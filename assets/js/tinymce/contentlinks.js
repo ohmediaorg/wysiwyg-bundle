@@ -4,7 +4,7 @@ export default function (contentlinkUrl) {
       let data = null;
 
       const dialogConfig = {
-        title: 'Content Link',
+        title: 'Content Links',
         size: 'medium',
         buttons: [
           { type: 'cancel', text: 'Close' },
@@ -83,21 +83,21 @@ export default function (contentlinkUrl) {
     }
 
     editor.ui.registry.addButton('ohcontentlinks', {
-      name: 'Content Link',
+      name: 'Content Links',
       icon: 'link',
-      tooltip: 'Content Link',
+      tooltip: 'Content Links',
       onAction: openDialog,
     });
 
     editor.ui.registry.addMenuItem('ohcontentlinks', {
-      text: 'Content Link',
+      text: 'Content Links',
       icon: 'link',
       onAction: openDialog,
     });
 
     return {
       getMetadata: () => ({
-        name: 'Content Link',
+        name: 'Content Links',
         url: 'mailto:support@ohmedia.ca',
       }),
     };
