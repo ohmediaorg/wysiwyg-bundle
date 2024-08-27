@@ -57,13 +57,24 @@ class OHMediaWysiwygBundle extends AbstractBundle
     private function configureTinymce(DefinitionConfigurator $definition): void
     {
         $plugins = [
+            'advlist', // requires 'lists'
+            'autolink',
             'autoresize',
+            'autosave',
+            'charmap',
             'code',
+            'directionality',
+            'fullscreen',
             'link',
             'lists',
+            'table',
             'ohshortcodes',
             'ohfilebrowser',
             'ohcontentlinks',
+            'preview',
+            'searchreplace',
+            'visualblocks',
+            'visualchars',
         ];
 
         $menu = [];
