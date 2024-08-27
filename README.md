@@ -16,7 +16,14 @@ Update `composer.json` by adding this to the `repositories` array:
 
 Then run `composer require ohmediaorg/wysiwyg-bundle:dev-main`.
 
-Also run `npm install tinymce`
+Import the routes in `config/routes.yaml`:
+
+```yaml
+oh_media_wysiwyg:
+    resource: '@OHMediaWysiwygBundle/config/routes.yaml'
+```
+
+Run `npm install tinymce`
 
 Create the minimum config file in `config/oh_media_wysiwyg.yaml`:
 
