@@ -24,7 +24,7 @@ class TinymceExtension extends AbstractExtension
             $this->plugins = str_replace([' ohfilebrowser', 'ohfilebrowser '], '', $this->plugins);
         }
 
-        $this->validElements = HtmlTags::htmlTagsToTinymceElements($allowedTags);
+        $this->validElements = HtmlTags::htmlTagsToTinymceElements(...$allowedTags);
     }
 
     public function getFunctions(): array

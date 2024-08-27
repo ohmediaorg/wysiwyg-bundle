@@ -126,7 +126,7 @@ class HtmlTags
         'title',
     ];
 
-    public static function htmlTagsToTinymceElements(array $tags): string
+    public static function htmlTagsToTinymceElements(string ...$tags): string
     {
         return implode(',', array_map(function ($tag) {
             return $tag.'[*]';

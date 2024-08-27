@@ -62,7 +62,7 @@ class WysiwygType extends AbstractType
         }
 
         if (null !== $options['allowed_tags']) {
-            $view->vars['attr']['data-tinymce-valid-elements'] = HtmlTags::htmlTagsToTinymceElements($options['allowed_tags']);
+            $view->vars['attr']['data-tinymce-valid-elements'] = HtmlTags::htmlTagsToTinymceElements(...$options['allowed_tags']);
         }
 
         $view->vars['attr']['data-tinymce-allow-shortcodes'] = $options['allow_shortcodes'] ? 'true' : 'false';
