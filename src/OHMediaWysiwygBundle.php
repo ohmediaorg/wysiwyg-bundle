@@ -92,7 +92,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
         ;
 
         $containerBuilder->registerForAutoconfiguration(AbstractContentLinkProvider::class)
-            ->addTag('oh_media_backend.content_link_provider')
+            ->addTag('oh_media_wysiwyg.content_link_provider')
         ;
 
         $containerBuilder->registerForAutoconfiguration(AbstractWysiwygExtension::class)
