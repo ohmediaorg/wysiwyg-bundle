@@ -11,3 +11,27 @@ services:
     OHMedia\WysiwygBundle\Twig\WysiwygExtension:
         arguments: ["@oh_media_wysiwyg.wysiwyg"]
         tags: ["twig.extension"]
+
+    OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager:
+        ~
+
+    oh_media_wysiwyg.shortcode_manager: '@OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager'
+
+    OHMedia\WysiwygBundle\Controller\TinyMCEController:
+        tags: ["container.service_subscriber", "controller.service_arguments"]
+        autowire: true
+
+    OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager:
+        ~
+
+    oh_media_wysiwyg.content_link_manager: '@OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager'
+
+    OHMedia\WysiwygBundle\Twig\ShortcodeExtension:
+        tags:
+            - { name: twig.extension }
+
+    OHMedia\WysiwygBundle\Twig\TinymceExtension:
+        arguments: ["@oh_media_file.file_browser", "%oh_media_wysiwyg.tinymce.plugins%", "%oh_media_wysiwyg.tinymce.toolbar%", "%oh_media_wysiwyg.allowed_tags%"]
+        public: false
+        tags:
+            - { name: twig.extension }

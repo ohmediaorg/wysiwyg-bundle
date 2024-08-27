@@ -2,8 +2,12 @@
 
 namespace OHMedia\WysiwygBundle;
 
+use OHMedia\WysiwygBundle\ContentLinks\AbstractContentLinkProvider;
+use OHMedia\WysiwygBundle\DependencyInjection\Compiler\ContentLinkPass;
+use OHMedia\WysiwygBundle\DependencyInjection\Compiler\ShortcodePass;
 use OHMedia\WysiwygBundle\DependencyInjection\Compiler\WysiwygPass;
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
+use OHMedia\WysiwygBundle\Shortcodes\AbstractShortcodeProvider;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
 use OHMedia\WysiwygBundle\Util\HtmlTags;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
@@ -17,6 +21,8 @@ class OHMediaWysiwygBundle extends AbstractBundle
     {
         parent::build($container);
 
+        $container->addCompilerPass(new ContentLinkPass());
+        $container->addCompilerPass(new ShortcodePass());
         $container->addCompilerPass(new WysiwygPass());
     }
 
@@ -40,6 +46,27 @@ class OHMediaWysiwygBundle extends AbstractBundle
         }
 
         $allowedTags->end()->end();
+
+        $definition->rootNode()
+            ->children()
+                ->arrayNode('tinymce')
+                  ->children()
+                    ->scalarNode('plugins')
+                        ->defaultValue('autoresize code link lists ohshortcodes ohfilebrowser ohcontentlink')
+                    ->end()
+                    ->arrayNode('toolbar')
+                        ->scalarPrototype()->end()
+                        ->defaultValue([
+                            'undo redo',
+                            'blocks ohshortcodes ohfilebrowser ohcontentlink',
+                            'bold italic numlist bullist',
+                            'alignleft aligncenter alignright alignjustify',
+                            'outdent indent',
+                        ])
+                    ->end()
+                ->end()
+            ->end()
+        ;
     }
 
     public function loadExtension(
@@ -59,12 +86,25 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $containerConfigurator->parameters()->set('oh_media_wysiwyg.allowed_tags', $allowedTags);
 
+        $containerConfigurator->parameters()
+            ->set('oh_media_wysiwyg.tinymce.plugins', $config['tinymce']['plugins'])
+            ->set('oh_media_wysiwyg.tinymce.toolbar', $config['tinymce']['toolbar'])
+        ;
+
+        $containerBuilder->registerForAutoconfiguration(AbstractContentLinkProvider::class)
+            ->addTag('oh_media_backend.content_link_provider')
+        ;
+
         $containerBuilder->registerForAutoconfiguration(AbstractWysiwygExtension::class)
             ->addTag('oh_media_wysiwyg.extension')
         ;
 
         $containerBuilder->registerForAutoconfiguration(WysiwygRepositoryInterface::class)
             ->addTag('oh_media_wysiwyg.repository')
+        ;
+
+        $containerBuilder->registerForAutoconfiguration(AbstractShortcodeProvider::class)
+            ->addTag('oh_media_wysiwyg.shortcode_provider')
         ;
     }
 }

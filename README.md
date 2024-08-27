@@ -16,6 +16,8 @@ Update `composer.json` by adding this to the `repositories` array:
 
 Then run `composer require ohmediaorg/wysiwyg-bundle:dev-main`.
 
+Also run `npm install tinymce`
+
 Create the minimum config file in `config/oh_media_wysiwyg.yaml`:
 
 ```yaml
@@ -33,6 +35,7 @@ oh_media_wysiwyg:
     tags:
         fieldset: true
         table: false
+    tinymce:
 ```
 
 ## Form Field
@@ -200,3 +203,39 @@ class ArticleVoter extends AbstractEntityVoter
     }
 }
 ```
+
+# TinyMCE Integration
+
+## TinyMCE JS
+
+Make sure webpack encore is setup to copy TinyMCE files:
+
+```js
+.copyFiles({
+  from: './node_modules/tinymce',
+  to: 'js/tinymce/[path][name].[ext]',
+  pattern: /\.(js|min\.css)$/,
+})
+```
+
+Such that `<script src="/backend/js/tinymce/tinymce.min.js"></script>` is valid.
+
+There is a function to initialize a TinyMCE instance:
+
+```js
+OH_MEDIA_TINYMCE(container, selector);
+```
+
+## Shortcodes
+
+Shortcodes can be made available to the TinyMCE editor simply by extending
+`OHMedia\WysiwygBundle\Shortcodes\AbstractShortcodeProvider`.
+
+See [EventShortcodeProvider](https://github.com/ohmediaorg/event-bundle/blob/main/src/Service/EventShortcodeProvider.php).
+
+## Content Links
+
+Content Links can be made available to the TinyMCE editor simply by extending
+`OHMedia\WysiwygBundle\ContentLinks\AbstractContentLinkProvider`.
+
+See [PageContentLinkProvider](https://github.com/ohmediaorg/page-bundle/blob/main/src/Service/PageContentLinkProvider.php).

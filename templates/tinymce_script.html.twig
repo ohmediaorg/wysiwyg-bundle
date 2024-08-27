@@ -1,0 +1,47 @@
+<script src="/backend/js/tinymce/tinymce.min.js"></script>
+
+<script async>
+function OH_MEDIA_TINYMCE(container, selector) {
+  const els = container.querySelectorAll(selector);
+
+  els.forEach(el => {
+    el.required = false;
+
+    tinymce.init({
+      target: el,
+      plugins: {{ plugins|json_encode|raw }},
+      toolbar: {{ toolbar|json_encode|raw }},
+      license_key: 'gpl',
+      max_height: 600,
+      valid_elements: {{ allowed_tags|join(',')|json_encode|raw }}
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  window.initTinyMCEShortcodesPlugin('{{ path('tinymce_shortcodes') }}');
+
+  {% if file_browser_enabled %}
+  window.initTinyMCEFilebrowserPlugin('{{ path('tinymce_filebrowser') }}');
+  {% endif %}
+
+  window.initTinyMCEContentlinkPlugin('{{ path('tinymce_content_links') }}');
+
+  OH_MEDIA_TINYMCE(document, 'textarea.wysiwyg');
+
+  const observer = new MutationObserver(function(mutationList, observer) {
+    for (const mutation of mutationList) {
+      if ('childList' !== mutation.type) {
+        continue;
+      }
+
+      OH_MEDIA_TINYMCE(mutation.target, 'textarea.wysiwyg');
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+});
+</script>
