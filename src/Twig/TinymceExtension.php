@@ -21,7 +21,6 @@ class TinymceExtension extends AbstractExtension
     ) {
         if (!$this->fileBrowser->isEnabled()) {
             $this->plugins = str_replace([' ohfilebrowser', 'ohfilebrowser '], '', $this->plugins);
-            $this->toolbar = str_replace([' ohfilebrowser', 'ohfilebrowser '], '', $this->toolbar);
         }
 
         $this->allowedTags = implode(',', array_map(function ($tag) {
