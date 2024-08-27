@@ -30,6 +30,7 @@ Create the minimum config file in `config/oh_media_wysiwyg.yaml`:
 ```yaml
 oh_media_wysiwyg:
     tags:
+    tinymce:
 ```
 
 This will enable/disable HTML tags based on constant values inside of
@@ -44,6 +45,10 @@ oh_media_wysiwyg:
         table: false
     tinymce:
 ```
+
+The available options under in `tinymce` are `plugins`, `menu`, and `toolbar`.
+The values of these options should mimic the value passed into the tinymce.init
+function.
 
 ## Form Field
 
