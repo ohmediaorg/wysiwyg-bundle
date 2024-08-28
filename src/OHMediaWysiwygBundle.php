@@ -57,31 +57,29 @@ class OHMediaWysiwygBundle extends AbstractBundle
     private function configureTinymce(DefinitionConfigurator $definition): void
     {
         $plugins = [
-            'advlist', // requires 'lists'
+            'anchor',
             'autolink',
             'autoresize',
             'autosave',
             'charmap',
             'code',
             'directionality',
-            'fullscreen',
             'link',
             'lists',
             'table',
             'ohshortcodes',
             'ohfilebrowser',
             'ohcontentlinks',
-            'preview',
+            'quickbars',
             'searchreplace',
             'visualblocks',
-            'visualchars',
         ];
 
         $menu = [];
 
         $menu['file'] = [
             'title' => 'File',
-            'items' => 'newdocument restoredraft | preview | importword exportpdf exportword | print | deleteallconversations',
+            'items' => '',
         ];
 
         $menu['edit'] = [
@@ -91,22 +89,17 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $menu['view'] = [
             'title' => 'View',
-            'items' => 'code revisionhistory | visualaid visualchars visualblocks | spellchecker | preview fullscreen | showcomments',
+            'items' => 'code | visualblocks',
         ];
 
         $menu['insert'] = [
             'title' => 'Insert',
-            'items' => 'image link media addcomment pageembed codesample inserttable | math | charmap emoticons hr | pagebreak nonbreaking anchor tableofcontents | insertdatetime',
+            'items' => 'link | charmap hr | anchor',
         ];
 
         $menu['format'] = [
             'title' => 'Format',
-            'items' => 'bold italic underline strikethrough superscript subscript codeformat | styles blocks fontfamily fontsize align lineheight | forecolor backcolor | language | removeformat',
-        ];
-
-        $menu['tools'] = [
-            'title' => 'Tools',
-            'items' => 'spellchecker spellcheckerlanguage | a11ycheck code wordcount',
+            'items' => 'bold italic underline strikethrough superscript subscript codeformat | removeformat',
         ];
 
         $menu['table'] = [
@@ -114,15 +107,10 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'items' => 'inserttable | cell row column | advtablesort | tableprops deletetable',
         ];
 
-        $menu['help'] = [
-            'title' => 'Help',
-            'items' => 'help',
-        ];
-
         $toolbar = [
             'undo redo',
             'blocks ohshortcodes ohfilebrowser ohcontentlinks',
-            'bold italic numlist bullist',
+            'bold italic underline numlist bullist',
             'alignleft aligncenter alignright alignjustify',
             'outdent indent',
         ];
