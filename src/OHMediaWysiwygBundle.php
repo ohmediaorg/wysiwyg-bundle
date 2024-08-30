@@ -102,9 +102,19 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'items' => 'bold italic underline strikethrough superscript subscript codeformat | removeformat',
         ];
 
+        $menu['tools'] = [
+            'title' => 'Tools',
+            'items' => '',
+        ];
+
         $menu['table'] = [
             'title' => 'Table',
             'items' => 'inserttable | cell row column | advtablesort | tableprops deletetable',
+        ];
+
+        $menu['help'] = [
+            'title' => 'Help',
+            'items' => '',
         ];
 
         $toolbar = [
