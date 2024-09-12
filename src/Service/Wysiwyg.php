@@ -75,7 +75,7 @@ class Wysiwyg
             return $this->filterHtml($wysiwyg, $allowedTags);
         }
 
-        $wysiwyg = $this->filter($wysiwyg, $allowedTags);
+        $wysiwyg = $this->filter($wysiwyg, $allowedTags, $allowShortcodes);
 
         $template = $this->twig->createTemplate($wysiwyg);
 
