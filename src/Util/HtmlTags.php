@@ -129,7 +129,7 @@ class HtmlTags
     public static function htmlTagsToTinymceElements(string ...$tags): string
     {
         return implode(',', array_map(function ($tag) {
-            return $tag.'[*]';
+            return ('p' === $tag ? '#' : '').$tag.'[*]';
         }, $tags));
     }
 }
