@@ -6,28 +6,28 @@ use Twig\Extension\AbstractExtension;
 
 abstract class AbstractWysiwygExtension extends AbstractExtension
 {
-    final public function getTokenParsers(): array
+    final public function getTokenParsers()
     {
-        return [];
+        return parent::getTokenParsers();
     }
 
-    final public function getNodeVisitors(): array
+    final public function getNodeVisitors()
     {
-        return [];
+        return parent::getNodeVisitors();
     }
 
-    final public function getFilters(): array
+    final public function getFilters()
     {
-        return [];
+        return parent::getFilters();
     }
 
-    final public function getTests(): array
+    final public function getTests()
     {
-        return [];
+        return parent::getTests();
     }
 
-    final public function getOperators(): array
+    final public function getOperators()
     {
-        return [];
+        return parent::getOperators();
     }
 }
