@@ -40,11 +40,58 @@ function OH_MEDIA_TINYMCE(container, selector) {
       menu: OH_MEDIA_TINYMCE_MENU,
       toolbar: OH_MEDIA_TINYMCE_TOOLBAR,
       toolbar_mode: 'wrap',
+      block_formats: [
+          'Paragraph=p',
+          'Heading 2=h2',
+          'Heading 3=h3',
+          'Heading 4=h4',
+          'Heading 5=h5',
+          'Heading 6=h6',
+          'Blockquote=blockquote',
+          'Div=div',
+      ].join(';'),
+      paste_block_drop: true,
+      paste_data_images: false,
       quickbars_insert_toolbar: false,
       quickbars_image_toolbar: false,
       license_key: 'gpl',
       max_height: 600,
       valid_elements: validElements,
+      document_base_url: '{{ app.request.baseUrl }}/',
+      relative_urls: false,
+      urlconverter_callback: function(url, node, on_save, name) {
+        // Making sure shortcodes are handled properly.
+        // NOTE: cannot use double { because it is seen as Twig syntax.
+        if (url.indexOf('{') >= 0) {
+          return url.replace('/{', '{');
+        }
+
+        // Allowing for hash links.
+        if (0 === url.indexOf('#')) {
+          return url;
+        }
+
+        // The following are lines copied/modified from convertURL. We cannot
+        // call this.convertURL() directly without infinite recursion.
+        const self = this, getOption = self.options.get;
+
+        if (!getOption('convert_urls') || node === 'link' || (typeof node === 'object' && node.nodeName === 'LINK') || url.indexOf('file:') === 0 || url.length === 0) {
+          return url;
+        }
+
+        const urlObject = new URL(url);
+        if (urlObject.protocol !== 'http' && urlObject.protocol !== 'https' && urlObject.protocol !== '') {
+          return url;
+        }
+
+        if (getOption('relative_urls')) {
+          return self.documentBaseURI.toRelative(url);
+        }
+
+        url = self.documentBaseURI.toAbsolute(url, getOption('remove_script_host'));
+
+        return url;
+      },
     });
   });
 }
