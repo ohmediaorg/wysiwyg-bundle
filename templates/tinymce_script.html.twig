@@ -79,9 +79,12 @@ function OH_MEDIA_TINYMCE(container, selector) {
           return url;
         }
 
-        const urlObject = new URL(url);
-        if (urlObject.protocol !== 'http' && urlObject.protocol !== 'https' && urlObject.protocol !== '') {
-          return url;
+        try {
+          const urlObject = new URL(url);
+          if (urlObject.protocol !== 'http' && urlObject.protocol !== 'https' && urlObject.protocol !== '') {
+            return url;
+          }
+        } catch(e) {
         }
 
         if (getOption('relative_urls')) {
