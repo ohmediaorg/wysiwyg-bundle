@@ -122,6 +122,10 @@ function getFileRow(item, onclickLink) {
   const col2 = getColumn();
   col2.innerHTML = item.name + ' (ID:' + item.id + ')';
 
+  if (item.locked) {
+    col2.innerHTML += '<i class="bi bi-lock-fill text-secondary"></i>';
+  }
+
   row.append(col2);
 
   const col3 = getColumn();
@@ -212,7 +216,7 @@ export default function (filesUrl) {
       }
 
       async function populateFiles(url) {
-        localStorage.setItem('tinymce_filebrowser_url', url);
+        localStorage.setItem('oh_media_wysiwyg_tinymce_filebrowser_url', url);
 
         if (container) {
           container.innerHTML = '';
