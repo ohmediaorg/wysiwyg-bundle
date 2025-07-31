@@ -10,5 +10,7 @@ interface WysiwygRepositoryInterface
 
     public function getEntityRoute(): string;
 
+    public function getEntityRouteParams(mixed $entity): array;
+
     public function getEntityName(): string;
 }

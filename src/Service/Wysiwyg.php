@@ -93,10 +93,9 @@ class Wysiwyg
 
             foreach ($entities as $entity) {
                 $route = $repository->getEntityRoute();
+                $params = $repository->getEntityRouteParams($entity);
 
-                $href = $this->urlGenerator->generate($route, [
-                    'id' => $entity->getId(),
-                ]);
+                $href = $this->urlGenerator->generate($route, $params);
 
                 $links[] = [
                     'href' => $href,
