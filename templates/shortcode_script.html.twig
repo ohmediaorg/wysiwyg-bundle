@@ -2,15 +2,28 @@
 document.addEventListener('DOMContentLoaded', function() {
   const shortcodes = document.querySelectorAll('code[data-shortcode]');
 
-  shortcodes.forEach((el) => {
-    const shortcode = el.dataset.shortcode;
+  let currentPopover = null;
 
+  shortcodes.forEach((el) => {
     const params = new URLSearchParams();
-    params.append('shortcode', shortcode);
+    params.append('shortcode', el.dataset.shortcode);
 
     fetch(`{{ path('shortcode_links') }}?${params}`)
       .then(r => r.json())
       .then(r => {
+        if (!r.links.length) {
+          return;
+        }
+
+        const popoverLink = document.createElement('a');
+        popoverLink.href = 'javascript:;';
+        popoverLink.className = 'd-block';
+
+        const popoverInner = document.createElement('small');
+        popoverInner.textContent = 'See usages';
+
+        popoverLink.append(popoverInner);
+
         let links = '';
 
         r.links.forEach((link) => {
@@ -20,22 +33,28 @@ document.addEventListener('DOMContentLoaded', function() {
           </a>`
         });
 
-        const popover = new window.Bootstrap.Popover(el, {
+        const popover = new window.Bootstrap.Popover(popoverLink, {
           title: 'Shortcode Locations',
           content: links ? links : 'Not in use.',
           html: true,
           placement: 'top',
         });
 
-        el.addEventListener('show.bs.popover', function() {
-          shortcodes.forEach((other) => {
-            if (other !== el) {
-              window.Bootstrap.Popover.getInstance(other).hide();
-            }
-          });
+        popoverLink.addEventListener('show.bs.popover', function() {
+          if (currentPopover && popover !== currentPopover) {
+            currentPopover.hide();
+          }
+
+          currentPopover = popover;
         });
 
-        el.style.cursor = 'pointer';
+        popoverLink.addEventListener('hide.bs.popover', function() {
+          if (currentPopover && popover !== currentPopover) {
+            currentPopover = null;
+          }
+        });
+
+        el.after(popoverLink);
       });
   });
 });
