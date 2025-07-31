@@ -41,19 +41,59 @@ class Wysiwyg
         return $this;
     }
 
-    public function shortcodesInUse(string ...$shortcodes): bool
+    public function shortcodeInUse(string $shortcode): bool
     {
-        foreach ($shortcodes as $i => $shortcode) {
-            $shortcodes[$i] = Shortcode::format($shortcode);
-        }
+        $shortcode = Shortcode::format($shortcode);
 
         foreach ($this->repositories as $repository) {
-            if ($repository->containsWysiwygShortcodes(...$shortcodes)) {
+            if ($this->repositoryContainsShortcode($repository)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function repositoryContainsShortcode(
+        WysiwygRepositoryInterface $repository,
+    ): bool {
+        $qb = $repository->getShortcodeQueryBuilder();
+
+        $aliases = $qb->getRootAliases();
+
+        if (!isset($aliases[0])) {
+            throw new \RuntimeException('No alias was set before invoking getShortcodeQueryBuilder().');
+        }
+
+        $select = sprintf('COUNT(%s.id)', $aliases[0]);
+
+        return (clone $qb)
+            ->select($select)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+    }
+
+    public function shortcodeLinks(string $shortcode): array
+    {
+        $shortcode = Shortcode::format($shortcode);
+
+        $links = [];
+
+        foreach ($this->repositories as $repository) {
+            $entities = $repository->getShortcodeQueryBuilder()
+                ->getQuery()
+                ->getResult();
+
+            foreach ($entities as $entity) {
+                $links[] = [
+                    'route' => $repository->getEntityRoute(),
+                    'id' => $entity->getId(),
+                    'text' => (string) $entity,
+                ];
+            }
+        }
+
+        return $links;
     }
 
     public function isValid(string $wysiwyg): bool

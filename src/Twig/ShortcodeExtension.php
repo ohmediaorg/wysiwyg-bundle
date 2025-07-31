@@ -3,6 +3,7 @@
 namespace OHMedia\WysiwygBundle\Twig;
 
 use OHMedia\WysiwygBundle\Shortcodes\Shortcode;
+use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -14,11 +15,29 @@ class ShortcodeExtension extends AbstractExtension
             new TwigFunction('shortcode', [$this, 'shortcode'], [
                 'is_safe' => ['html'],
             ]),
+            new TwigFunction('shortcode_script', [$this, 'shortcodeScript'], [
+                'is_safe' => ['html'],
+            ]),
         ];
     }
 
     public function shortcode(string $shortcode)
     {
-        return '<code>'.Shortcode::format($shortcode).'</code>';
+        $shortcode = Shortcode::format($shortcode);
+
+        return '<code data-shortcode="'.$shortcode.'">'.$shortcode.'</code>';
+    }
+
+    private boolean $rendered = false;
+
+    public function shortcodeScript(Environment $twig)
+    {
+        if ($this->rendered) {
+            return;
+        }
+
+        $this->rendered = true;
+
+        return $twig->render('@OHMediaWysiwyg/shortcode_script.html.twig');
     }
 }
