@@ -43,13 +43,17 @@ class Wysiwyg
         return $this;
     }
 
-    public function shortcodeInUse(string $shortcode): bool
+    public function shortcodesInUse(string ...$shortcodes): bool
     {
-        $shortcode = Shortcode::format($shortcode);
+        foreach ($shortcodes as $i => $shortcode) {
+            $shortcodes[$i] = Shortcode::format($shortcode);
+        }
 
         foreach ($this->repositories as $repository) {
-            if ($this->repositoryContainsShortcode($repository, $shortcode)) {
-                return true;
+            foreach ($shortcodes as $shortcode) {
+                if ($this->repositoryContainsShortcode($repository, $shortcode)) {
+                    return true;
+                }
             }
         }
 
