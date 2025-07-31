@@ -27,6 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
           placement: 'top',
         });
 
+        el.addEventListener('show.bs.popover', function() {
+          shortcodes.forEach((other) => {
+            if (other !== el) {
+              window.Bootstrap.Popover.getInstance(other).hide();
+            }
+          });
+        });
+
         el.style.cursor = 'pointer';
       });
   });
