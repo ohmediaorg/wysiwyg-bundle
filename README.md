@@ -166,14 +166,12 @@ to check for fields containing the shortcodes. This would be for any DB value
 that could contain a shortcode that is rendered with `{{ wysiwyg(value) }}`.
 
 ```php
-public function containsWysiwygShortcodes(string ...$shortcodes): bool
+public function getShortcodeQueryBuilder(string $shortcode): QueryBuilder
 {
-    foreach ($shortcodes as $shortcode) {
-        // do a COUNT query with a LIKE clause on some field
-        // if count > 0, return true
-    }
-
-    return false;
+    return $this->createQueryBuilder('e')
+        ->select('COUNT(e)')
+        ->where('e.content LIKE :shortcode')
+        ->setParameter('shortcode', '%'.$shortcode.'%');
 }
 ```
 

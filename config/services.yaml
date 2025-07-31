@@ -1,6 +1,9 @@
 services:
     OHMedia\WysiwygBundle\Service\Wysiwyg:
-        arguments: ["@twig", "%oh_media_wysiwyg.allowed_tags%"]
+        arguments:
+            - "@twig"
+            - "@router"
+            - "%oh_media_wysiwyg.allowed_tags%"
 
     oh_media_wysiwyg.wysiwyg: '@OHMedia\WysiwygBundle\Service\Wysiwyg'
 
@@ -18,6 +21,10 @@ services:
     oh_media_wysiwyg.shortcode_manager: '@OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager'
 
     OHMedia\WysiwygBundle\Controller\TinyMCEController:
+        tags: ["container.service_subscriber", "controller.service_arguments"]
+        autowire: true
+
+    OHMedia\WysiwygBundle\Controller\ShortcodeController:
         tags: ["container.service_subscriber", "controller.service_arguments"]
         autowire: true
 
