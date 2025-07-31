@@ -21,6 +21,10 @@ services:
         tags: ["container.service_subscriber", "controller.service_arguments"]
         autowire: true
 
+    OHMedia\WysiwygBundle\Controller\ShortcodeController:
+        tags: ["container.service_subscriber", "controller.service_arguments"]
+        autowire: true
+
     OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager:
         ~
 

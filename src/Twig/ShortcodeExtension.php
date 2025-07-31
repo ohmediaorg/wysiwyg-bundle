@@ -17,6 +17,7 @@ class ShortcodeExtension extends AbstractExtension
             ]),
             new TwigFunction('shortcode_script', [$this, 'shortcodeScript'], [
                 'is_safe' => ['html'],
+                'needs_environment' => true,
             ]),
         ];
     }
