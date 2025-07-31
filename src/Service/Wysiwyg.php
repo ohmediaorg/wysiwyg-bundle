@@ -46,7 +46,7 @@ class Wysiwyg
         $shortcode = Shortcode::format($shortcode);
 
         foreach ($this->repositories as $repository) {
-            if ($this->repositoryContainsShortcode($repository)) {
+            if ($this->repositoryContainsShortcode($repository, $shortcode)) {
                 return true;
             }
         }
@@ -56,8 +56,9 @@ class Wysiwyg
 
     private function repositoryContainsShortcode(
         WysiwygRepositoryInterface $repository,
+        string $shortcode,
     ): bool {
-        $qb = $repository->getShortcodeQueryBuilder();
+        $qb = $repository->getShortcodeQueryBuilder($shortcode);
 
         $aliases = $qb->getRootAliases();
 
@@ -80,7 +81,7 @@ class Wysiwyg
         $links = [];
 
         foreach ($this->repositories as $repository) {
-            $entities = $repository->getShortcodeQueryBuilder()
+            $entities = $repository->getShortcodeQueryBuilder($shortcode)
                 ->getQuery()
                 ->getResult();
 

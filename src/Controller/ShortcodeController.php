@@ -2,9 +2,10 @@
 
 namespace OHMedia\WysiwygBundle\Controller;
 
-use OHMedia\WysiwygBundle\Services\Wysiwyg;
+use OHMedia\WysiwygBundle\Service\Wysiwyg;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -13,9 +14,11 @@ class ShortcodeController extends AbstractController
     #[Route('/oh-media-wysiwyg/shortcode-links', name: 'shortcode_links')]
     public function links(
         Wysiwyg $wysiwyg,
-        string $shortcode
+        Request $request,
     ): Response {
-        $links = $wysiwyg->shortcodeLinks($shortcode);
+        $shortcode = $request->query->get('shortcode', null);
+
+        $links = $shortcode ? $wysiwyg->shortcodeLinks($shortcode) : [];
 
         return new JsonResponse([
             'links' => $links,

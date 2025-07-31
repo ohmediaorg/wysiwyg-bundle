@@ -171,7 +171,7 @@ public function getShortcodeQueryBuilder(string $shortcode): QueryBuilder
     return $this->createQueryBuilder('e')
         ->select('COUNT(e)')
         ->where('e.content LIKE :shortcode')
-        ->setParameters('shortcode', $shortcode);
+        ->setParameter('shortcode', '%'.$shortcode.'%');
 }
 ```
 
