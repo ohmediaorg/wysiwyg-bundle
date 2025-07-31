@@ -5,9 +5,14 @@ document.addEventListener('DOMContentLoaded', function() {
   shortcodes.forEach((el) => {
     const shortcode = el.dataset.shortcode;
 
-    // TODO: fetch the links
+    const params = new URLSearchParams();
+    params.append('shortcode', shortcode);
 
-    // TODO: render the links in an info popup
+    fetch(`{{ path('shortcode_links') }}?${params}`)
+      .then(r => r.json())
+      .then(r => {
+        console.log(shortcode, r);
+      });
   });
 });
 </script>

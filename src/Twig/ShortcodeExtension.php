@@ -28,7 +28,7 @@ class ShortcodeExtension extends AbstractExtension
         return '<code data-shortcode="'.$shortcode.'">'.$shortcode.'</code>';
     }
 
-    private boolean $rendered = false;
+    private bool $rendered = false;
 
     public function shortcodeScript(Environment $twig)
     {
