@@ -97,13 +97,19 @@ class Wysiwyg
 
                 $href = $this->urlGenerator->generate($route, $params);
 
-                $links[] = [
-                    'href' => $href,
-                    'text' => sprintf(
+                if (is_int($entity->getId())) {
+                    $text = sprintf(
                         '%s (ID:%s)',
                         $repository->getEntityName(),
                         $entity->getId(),
-                    ),
+                    );
+                } else {
+                    $text = $repository->getEntityName();
+                }
+
+                $links[] = [
+                    'href' => $href,
+                    'text' => $text,
                 ];
             }
         }
