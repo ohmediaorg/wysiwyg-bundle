@@ -9,4 +9,6 @@ interface WysiwygRepositoryInterface
     public function getShortcodeQueryBuilder(string $shortcode): QueryBuilder;
 
     public function getEntityRoute(): string;
+
+    public function getEntityName(): string;
 }

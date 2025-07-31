@@ -1,6 +1,9 @@
 services:
     OHMedia\WysiwygBundle\Service\Wysiwyg:
-        arguments: ["@twig", "%oh_media_wysiwyg.allowed_tags%"]
+        arguments:
+            - "@twig"
+            - "@router"
+            - "%oh_media_wysiwyg.allowed_tags%"
 
     oh_media_wysiwyg.wysiwyg: '@OHMedia\WysiwygBundle\Service\Wysiwyg'
 

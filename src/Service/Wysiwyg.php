@@ -5,6 +5,7 @@ namespace OHMedia\WysiwygBundle\Service;
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Shortcodes\Shortcode;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Token;
@@ -17,7 +18,8 @@ class Wysiwyg
 
     public function __construct(
         private Environment $twig,
-        private array $allowedTags
+        private UrlGeneratorInterface $urlGenerator,
+        private array $allowedTags,
     ) {
         $this->functions = [];
         $this->repositories = [];
@@ -86,10 +88,19 @@ class Wysiwyg
                 ->getResult();
 
             foreach ($entities as $entity) {
-                $links[] = [
-                    'route' => $repository->getEntityRoute(),
+                $route = $repository->getEntityRoute();
+
+                $href = $this->urlGenerator->generate($route, [
                     'id' => $entity->getId(),
-                    'text' => (string) $entity,
+                ]);
+
+                $links[] = [
+                    'href' => $href,
+                    'text' => sprintf(
+                        '%s (ID:%s)',
+                        $repository->getEntityName(),
+                        $entity->getId(),
+                    ),
                 ];
             }
         }
