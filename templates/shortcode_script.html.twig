@@ -34,8 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const popover = new window.Bootstrap.Popover(popoverLink, {
-          title: 'Shortcode Locations',
-          content: links ? links : 'Not in use.',
+          content: links,
           html: true,
           placement: 'top',
         });
