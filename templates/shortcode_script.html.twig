@@ -2,8 +2,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const shortcodes = document.querySelectorAll('code[data-shortcode]');
 
-  let currentPopover = null;
-
   shortcodes.forEach((el) => {
     const params = new URLSearchParams();
     params.append('shortcode', el.dataset.shortcode);
@@ -37,20 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
           content: links,
           html: true,
           placement: 'top',
-        });
-
-        popoverLink.addEventListener('show.bs.popover', function() {
-          if (currentPopover && popover !== currentPopover) {
-            currentPopover.hide();
-          }
-
-          currentPopover = popover;
-        });
-
-        popoverLink.addEventListener('hide.bs.popover', function() {
-          if (currentPopover && popover !== currentPopover) {
-            currentPopover = null;
-          }
+          trigger: 'focus',
         });
 
         el.after(popoverLink);
