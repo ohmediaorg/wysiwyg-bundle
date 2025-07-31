@@ -11,7 +11,23 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch(`{{ path('shortcode_links') }}?${params}`)
       .then(r => r.json())
       .then(r => {
-        console.log(shortcode, r);
+        let links = '';
+
+        r.links.forEach((link) => {
+          links += `<a class="d-inline-block" href="${link.href}" target="_blank">
+            ${link.text}
+            <i class="bi bi-box-arrow-up-right"></i>
+          </a>`
+        });
+
+        const popover = new window.Bootstrap.Popover(el, {
+          title: 'Shortcode Locations',
+          content: links ? links : 'Not in use.',
+          html: true,
+          placement: 'top',
+        });
+
+        el.style.cursor = 'pointer';
       });
   });
 });
