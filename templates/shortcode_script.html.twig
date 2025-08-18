@@ -4,6 +4,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let currentPopover = null;
 
+  document.addEventListener('click', function(e) {
+    if (currentPopover) {
+      currentPopover.hide();
+    }
+  });
+
   shortcodes.forEach((el) => {
     const params = new URLSearchParams();
     params.append('shortcode', el.dataset.shortcode);
@@ -17,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const popoverLink = document.createElement('a');
         popoverLink.href = 'javascript:;';
-        popoverLink.className = 'd-block';
+        popoverLink.className = 'd-inline-block';
 
         const popoverInner = document.createElement('small');
         popoverInner.textContent = 'See placements';
@@ -38,6 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
           html: true,
           placement: 'top',
           container: el.parentNode,
+          template: '<div class="popover ohmedia-wysiwyg-popover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>',
+        });
+
+        popoverLink.addEventListener('inserted.bs.popover', function() {
+          document.querySelector('.ohmedia-wysiwyg-popover')
+            .addEventListener('click', function(e) {
+              e.stopPropagation();
+            });
         });
 
         popoverLink.addEventListener('show.bs.popover', function() {
@@ -55,6 +69,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         el.after(popoverLink);
+
+        const br = document.createElement('br');
+        el.after(br);
       });
   });
 });
