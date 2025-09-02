@@ -108,14 +108,24 @@ class Wysiwyg
             }
 
             if ($links) {
-                $placements[] = [
-                    'heading' => $repository->getShortcodeHeading(),
-                    'links' => $links,
-                ];
+                $heading = $repository->getShortcodeHeading();
+
+                if (!isset($placements[$heading])) {
+                    $placements[$heading] = [
+                        'heading' => $repository->getShortcodeHeading(),
+                        'links' => [],
+                    ];
+                }
+
+                $placements[$heading]['links'] += $links;
             }
         }
 
-        return $placements;
+        usort($placements, function ($a, $b) {
+            return $a['heading'] <=> $b['heading'];
+        });
+
+        return array_values($placements);
     }
 
     public function isValid(string $wysiwyg): bool
