@@ -50,41 +50,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         popoverLink.append(popoverInner);
 
-        let tables = '';
+        let html = '';
 
         r.placements.forEach((placement) => {
-          let thead = `
-            <thead>
-              <tr>
-                <th>${placement.heading}</th>
-              </tr>
-            </thead>`;
-
-          let rows = '';
+          let items = '';
 
           placement.links.forEach((link) => {
-            rows += `
-              <tr>
-                <td>
-                  <a class="d-inline-block" href="${link.href}" target="_blank">
-                    ${link.text}
-                    <i class="bi bi-box-arrow-up-right"></i>
-                  </a>
-                </td>
-              </tr>`;
+            items += `
+              <li>
+                <a class="d-inline-block" href="${link.href}" target="_blank">
+                  ${link.text}
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </li>`;
           });
 
-          tables += `
-            <table class="table table-sm table-bordered table-striped">
-              ${thead}
-              <tbody>${rows}</tbody>
-            </table>`;
+          html += `
+            <h6>${placement.heading}</h6>
+            <ul>${items}</ul>`;
         });
 
         popoverLink.addEventListener('click', function(e) {
           code.textContent = el.dataset.shortcode;
 
-          container.innerHTML = tables;
+          container.innerHTML = html;
 
           modal.show();
         });
