@@ -1,23 +1,43 @@
+<div id="shortcode_placements_modal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Asset Placements</h5>
+      </div>
+      <div class="modal-body">
+        <p><code></code> is used in the following placements:</p>
+
+        <div id="shortcode_placements_container"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const shortcodes = document.querySelectorAll('code[data-shortcode]');
 
-  let currentPopover = null;
+  const modalEl = document.getElementById('shortcode_placements_modal');
 
-  document.addEventListener('click', function(e) {
-    if (currentPopover) {
-      currentPopover.hide();
-    }
+  const modal = new window.Bootstrap.Modal(modalEl, {
+    keyboard: false,
   });
 
-  shortcodes.forEach((el) => {
+  const container = document.getElementById('shortcode_placements_container');
+
+  const code = modalEl.querySelector('code');
+
+  shortcodes.forEach(function (el) {
     const params = new URLSearchParams();
     params.append('shortcode', el.dataset.shortcode);
 
-    fetch(`{{ path('shortcode_links') }}?${params}`)
+    fetch(`{{ path('shortcode_placements') }}?${params}`)
       .then(r => r.json())
       .then(r => {
-        if (!r.links.length) {
+        if (!r.placements.length) {
           return;
         }
 
@@ -26,46 +46,47 @@ document.addEventListener('DOMContentLoaded', function() {
         popoverLink.className = 'd-inline-block';
 
         const popoverInner = document.createElement('small');
-        popoverInner.textContent = 'See placements';
+        popoverInner.textContent = 'View placements';
 
         popoverLink.append(popoverInner);
 
-        let links = '';
+        let tables = '';
 
-        r.links.forEach((link) => {
-          links += `<a class="d-inline-block" href="${link.href}" target="_blank">
-            ${link.text}
-            <i class="bi bi-box-arrow-up-right"></i>
-          </a>`
+        r.placements.forEach((placement) => {
+          let thead = `
+            <thead>
+              <tr>
+                <th>${placement.heading}</th>
+              </tr>
+            </thead>`;
+
+          let rows = '';
+
+          placement.links.forEach((link) => {
+            rows += `
+              <tr>
+                <td>
+                  <a class="d-inline-block" href="${link.href}" target="_blank">
+                    ${link.text}
+                    <i class="bi bi-box-arrow-up-right"></i>
+                  </a>
+                </td>
+              </tr>`;
+          });
+
+          tables += `
+            <table class="table table-sm table-bordered table-striped">
+              ${thead}
+              <tbody>${rows}</tbody>
+            </table>`;
         });
 
-        const popover = new window.Bootstrap.Popover(popoverLink, {
-          content: links,
-          html: true,
-          placement: 'top',
-          container: el.parentNode,
-          template: '<div class="popover ohmedia-wysiwyg-popover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>',
-        });
+        popoverLink.addEventListener('click', function(e) {
+          code.textContent = el.dataset.shortcode;
 
-        popoverLink.addEventListener('inserted.bs.popover', function() {
-          document.querySelector('.ohmedia-wysiwyg-popover')
-            .addEventListener('click', function(e) {
-              e.stopPropagation();
-            });
-        });
+          container.innerHTML = tables;
 
-        popoverLink.addEventListener('show.bs.popover', function() {
-          if (currentPopover && popover !== currentPopover) {
-            currentPopover.hide();
-          }
-
-          currentPopover = popover;
-        });
-
-        popoverLink.addEventListener('hide.bs.popover', function() {
-          if (currentPopover && popover !== currentPopover) {
-            currentPopover = null;
-          }
+          modal.show();
         });
 
         el.after(popoverLink);

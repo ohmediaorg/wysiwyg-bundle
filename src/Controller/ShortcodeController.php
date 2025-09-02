@@ -11,17 +11,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ShortcodeController extends AbstractController
 {
-    #[Route('/oh-media-wysiwyg/shortcode-links', name: 'shortcode_links')]
-    public function links(
+    #[Route('/oh-media-wysiwyg/shortcode-placements', name: 'shortcode_placements')]
+    public function placements(
         Wysiwyg $wysiwyg,
         Request $request,
     ): Response {
         $shortcode = $request->query->get('shortcode', null);
 
-        $links = $shortcode ? $wysiwyg->shortcodeLinks($shortcode) : [];
+        $placements = $shortcode ? $wysiwyg->shortcodePlacements($shortcode) : [];
 
         return new JsonResponse([
-            'links' => $links,
+            'placements' => $placements,
         ]);
     }
 }

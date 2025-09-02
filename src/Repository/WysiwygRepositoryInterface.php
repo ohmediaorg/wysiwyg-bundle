@@ -8,9 +8,11 @@ interface WysiwygRepositoryInterface
 {
     public function getShortcodeQueryBuilder(string $shortcode): QueryBuilder;
 
-    public function getEntityRoute(): string;
+    public function getShortcodeRoute(): string;
 
-    public function getEntityRouteParams(mixed $entity): array;
+    public function getShortcodeRouteParams(mixed $entity): array;
 
-    public function getEntityName(): string;
+    public function getShortcodeHeading(): string;
+
+    public function getShortcodeLinkText(mixed $entity): string;
 }

@@ -80,41 +80,42 @@ class Wysiwyg
             ->getSingleScalarResult() > 0;
     }
 
-    public function shortcodeLinks(string $shortcode): array
+    public function shortcodePlacements(string $shortcode): array
     {
         $shortcode = Shortcode::format($shortcode);
 
-        $links = [];
+        $placements = [];
 
         foreach ($this->repositories as $repository) {
             $entities = $repository->getShortcodeQueryBuilder($shortcode)
                 ->getQuery()
                 ->getResult();
 
+            $links = [];
+
             foreach ($entities as $entity) {
-                $route = $repository->getEntityRoute();
-                $params = $repository->getEntityRouteParams($entity);
+                $route = $repository->getShortcodeRoute();
+                $params = $repository->getShortcodeRouteParams($entity);
 
                 $href = $this->urlGenerator->generate($route, $params);
 
-                if (is_int($entity->getId())) {
-                    $text = sprintf(
-                        '%s (ID:%s)',
-                        $repository->getEntityName(),
-                        $entity->getId(),
-                    );
-                } else {
-                    $text = $repository->getEntityName();
-                }
+                $text = $repository->getShortcodeLinkText($entity);
 
                 $links[] = [
                     'href' => $href,
                     'text' => $text,
                 ];
             }
+
+            if ($links) {
+                $placements[] = [
+                    'heading' => $repository->getShortcodeHeading(),
+                    'links' => $links,
+                ];
+            }
         }
 
-        return $links;
+        return $placements;
     }
 
     public function isValid(string $wysiwyg): bool
