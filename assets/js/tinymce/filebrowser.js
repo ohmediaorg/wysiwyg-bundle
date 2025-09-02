@@ -208,8 +208,14 @@ export default function (filesUrl) {
       let container = null;
 
       function onclickFile(item) {
+        const selectedText = editor.selection
+          .getContent({ format: 'text' })
+          .trim();
+
+        const linkText = selectedText ? selectedText : item.name;
+
         editor.insertContent(
-          `<a href="{{file_href(${item.id})}}" title="${item.name}" target="_blank">${item.name}</a>`
+          `<a href="{{file_href(${item.id})}}" title="${item.name}" target="_blank">${linkText}</a>`
         );
 
         dialog.close();
