@@ -22,8 +22,14 @@ export default function (contentlinkUrl) {
         },
         onSubmit: (api) => {
           if (data) {
+            const selectedText = editor.selection
+              .getContent({ format: 'text' })
+              .trim();
+
+            const linkText = selectedText ? selectedText : data.text;
+
             editor.insertContent(
-              `<a href="{{${data.href}}}" title="${data.title}">${data.text}</a>`
+              `<a href="{{${data.href}}}" title="${data.title}">${linkText}</a>`
             );
           }
 

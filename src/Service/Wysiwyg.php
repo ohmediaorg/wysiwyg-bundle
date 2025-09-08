@@ -5,6 +5,7 @@ namespace OHMedia\WysiwygBundle\Service;
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Shortcodes\Shortcode;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 use Twig\Source;
 use Twig\Token;
@@ -17,7 +18,8 @@ class Wysiwyg
 
     public function __construct(
         private Environment $twig,
-        private array $allowedTags
+        private UrlGeneratorInterface $urlGenerator,
+        private array $allowedTags,
     ) {
         $this->functions = [];
         $this->repositories = [];
@@ -48,12 +50,82 @@ class Wysiwyg
         }
 
         foreach ($this->repositories as $repository) {
-            if ($repository->containsWysiwygShortcodes(...$shortcodes)) {
-                return true;
+            foreach ($shortcodes as $shortcode) {
+                if ($this->repositoryContainsShortcode($repository, $shortcode)) {
+                    return true;
+                }
             }
         }
 
         return false;
+    }
+
+    private function repositoryContainsShortcode(
+        WysiwygRepositoryInterface $repository,
+        string $shortcode,
+    ): bool {
+        $qb = $repository->getShortcodeQueryBuilder($shortcode);
+
+        $aliases = $qb->getRootAliases();
+
+        if (!isset($aliases[0])) {
+            throw new \RuntimeException('No alias was set before invoking getShortcodeQueryBuilder().');
+        }
+
+        $select = sprintf('COUNT(%s.id)', $aliases[0]);
+
+        return (clone $qb)
+            ->select($select)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+    }
+
+    public function shortcodePlacements(string $shortcode): array
+    {
+        $shortcode = Shortcode::format($shortcode);
+
+        $placements = [];
+
+        foreach ($this->repositories as $repository) {
+            $entities = $repository->getShortcodeQueryBuilder($shortcode)
+                ->getQuery()
+                ->getResult();
+
+            $links = [];
+
+            foreach ($entities as $entity) {
+                $route = $repository->getShortcodeRoute();
+                $params = $repository->getShortcodeRouteParams($entity);
+
+                $href = $this->urlGenerator->generate($route, $params);
+
+                $text = $repository->getShortcodeLinkText($entity);
+
+                $links[] = [
+                    'href' => $href,
+                    'text' => $text,
+                ];
+            }
+
+            if ($links) {
+                $heading = $repository->getShortcodeHeading();
+
+                if (!isset($placements[$heading])) {
+                    $placements[$heading] = [
+                        'heading' => $repository->getShortcodeHeading(),
+                        'links' => [],
+                    ];
+                }
+
+                $placements[$heading]['links'] += $links;
+            }
+        }
+
+        usort($placements, function ($a, $b) {
+            return $a['heading'] <=> $b['heading'];
+        });
+
+        return array_values($placements);
     }
 
     public function isValid(string $wysiwyg): bool

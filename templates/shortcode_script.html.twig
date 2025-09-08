@@ -1,0 +1,88 @@
+<div id="shortcode_placements_modal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Asset Placements</h5>
+      </div>
+      <div class="modal-body">
+        <p><code></code> is used in the following placements:</p>
+
+        <div id="shortcode_placements_container"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const shortcodes = document.querySelectorAll('code[data-shortcode]');
+
+  const modalEl = document.getElementById('shortcode_placements_modal');
+
+  const modal = new window.Bootstrap.Modal(modalEl, {
+    keyboard: false,
+  });
+
+  const container = document.getElementById('shortcode_placements_container');
+
+  const code = modalEl.querySelector('code');
+
+  shortcodes.forEach(function (el) {
+    const params = new URLSearchParams();
+    params.append('shortcode', el.dataset.shortcode);
+
+    fetch(`{{ path('shortcode_placements') }}?${params}`)
+      .then(r => r.json())
+      .then(r => {
+        if (!r.placements.length) {
+          return;
+        }
+
+        const popoverLink = document.createElement('a');
+        popoverLink.href = 'javascript:;';
+        popoverLink.className = 'd-inline-block';
+
+        const popoverInner = document.createElement('small');
+        popoverInner.textContent = 'View placements';
+
+        popoverLink.append(popoverInner);
+
+        let html = '';
+
+        r.placements.forEach((placement) => {
+          let items = '';
+
+          placement.links.forEach((link) => {
+            items += `
+              <li>
+                <a class="d-inline-block" href="${link.href}" target="_blank">
+                  ${link.text}
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </li>`;
+          });
+
+          html += `
+            <h6>${placement.heading}</h6>
+            <ul>${items}</ul>`;
+        });
+
+        popoverLink.addEventListener('click', function(e) {
+          code.textContent = el.dataset.shortcode;
+
+          container.innerHTML = html;
+
+          modal.show();
+        });
+
+        el.after(popoverLink);
+
+        const br = document.createElement('br');
+        el.after(br);
+      });
+  });
+});
+</script>
