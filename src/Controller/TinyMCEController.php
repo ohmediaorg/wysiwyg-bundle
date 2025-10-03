@@ -5,6 +5,7 @@ namespace OHMedia\WysiwygBundle\Controller;
 use OHMedia\FileBundle\Entity\File;
 use OHMedia\FileBundle\Entity\FileFolder;
 use OHMedia\FileBundle\Repository\FileFolderRepository;
+use OHMedia\FileBundle\Repository\FileRepository;
 use OHMedia\FileBundle\Service\FileBrowser;
 use OHMedia\FileBundle\Service\FileManager;
 use OHMedia\FileBundle\Service\ImageManager;
@@ -18,6 +19,13 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/oh-media-wysiwyg/tinymce')]
 class TinyMCEController extends AbstractController
 {
+    public function __construct(
+        private FileBrowser $fileBrowser,
+        private FileFolderRepository $fileFolderRepository,
+        private FileManager $fileManager,
+    ) {
+    }
+
     #[Route('/shortcodes', name: 'tinymce_shortcodes')]
     public function shortcodes(ShortcodeManager $shortcodeManager): Response
     {
@@ -40,21 +48,18 @@ class TinyMCEController extends AbstractController
      */
     #[Route('/filebrowser/{id}', name: 'tinymce_filebrowser')]
     public function files(
-        FileBrowser $fileBrowser,
-        FileFolderRepository $fileFolderRepository,
-        FileManager $fileManager,
         ImageManager $imageManager,
         ?int $id = null
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
 
-        if (!$fileBrowser->isEnabled()) {
+        if (!$this->fileBrowser->isEnabled()) {
             return new JsonResponse([]);
         }
 
-        $fileFolder = $id ? $fileFolderRepository->find($id) : null;
+        $fileFolder = $id ? $this->fileFolderRepository->find($id) : null;
 
-        $listingItems = $fileBrowser->getListing($fileFolder);
+        $listingItems = $this->fileBrowser->getListing($fileFolder);
 
         $items = [];
 
@@ -106,5 +111,99 @@ class TinyMCEController extends AbstractController
             'back_path' => $backPath,
             'items' => $items,
         ]);
+    }
+
+    #[Route('/image-list', name: 'tinymce_image_list')]
+    public function imageList(
+        FileRepository $fileRepository,
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
+
+        if (!$this->fileBrowser->isEnabled()) {
+            return new JsonResponse([]);
+        }
+
+        $topLevelImages = $fileRepository->createQueryBuilder('i')
+            ->where('i.browser = 1')
+            ->andWhere('i.image = 1')
+            ->andWhere('IDENTITY(i.resize_parent) IS NULL')
+            ->andWhere('IDENTITY(i.folder) IS NULL')
+            ->orderBy('i.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $topLevelFolders = $this->fileFolderRepository->createQueryBuilder('ff')
+            ->where('ff.browser = 1')
+            ->andWhere('IDENTITY(ff.folder) IS NULL')
+            ->orderBy('ff.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $items = [];
+
+        foreach ($topLevelImages as $image) {
+            $items[] = $this->populateImage($image);
+        }
+
+        foreach ($topLevelFolders as $folder) {
+            $item = $this->populateMenu($folder);
+
+            if (!$item['menu']) {
+                continue;
+            }
+
+            $items[] = $item;
+        }
+
+        $this->sortItems($items);
+
+        return new JsonResponse($items);
+    }
+
+    private function populateImage(File $file): array
+    {
+        return [
+            'title' => $file->getFileName(),
+            'value' => $this->fileManager->getWebPath($file),
+        ];
+    }
+
+    private function populateMenu(FileFolder $folder): array
+    {
+        $item = [
+            'title' => $folder->getName(),
+            'menu' => [],
+        ];
+
+        foreach ($folder->getFiles() as $file) {
+            if (!$file->isImage()) {
+                continue;
+            }
+
+            $item['menu'][] = $this->populateImage($file);
+        }
+
+        foreach ($folder->getFolders() as $folder) {
+            $subitem = $this->populateMenu($folder);
+
+            if (!$subitem['menu']) {
+                continue;
+            }
+
+            $item['menu'][] = $subitem;
+        }
+
+        $this->sortItems($item['menu']);
+
+        return $item;
+    }
+
+    private function sortItems(array &$items): array
+    {
+        usort($items, function ($a, $b) {
+            return strtolower($a['title']) <=> strtolower($b['title']);
+        });
+
+        return $items;
     }
 }

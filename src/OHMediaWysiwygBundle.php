@@ -64,6 +64,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'charmap',
             'code',
             'directionality',
+            'image',
             'link',
             'lists',
             'table',
@@ -119,7 +120,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $toolbar = [
             'undo redo',
-            'blocks ohshortcodes ohfilebrowser ohcontentlinks',
+            'blocks ohshortcodes image ohfilebrowser ohcontentlinks',
             'bold italic underline numlist bullist',
             'alignleft aligncenter alignright alignjustify',
             'outdent indent',
