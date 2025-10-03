@@ -145,6 +145,14 @@ class OHMediaWysiwygBundle extends AbstractBundle
                     ->scalarNode('toolbar')
                         ->defaultValue(implode(' | ', $toolbar))
                     ->end()
+                    ->arrayNode('link_classes_list')
+                        ->arrayPrototype()
+                            ->children()
+                                ->scalarNode('title')->end()
+                                ->scalarNode('value')->end()
+                            ->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end()
         ;
@@ -171,6 +179,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
             ->set('oh_media_wysiwyg.tinymce.plugins', $config['tinymce']['plugins'])
             ->set('oh_media_wysiwyg.tinymce.menu', $config['tinymce']['menu'])
             ->set('oh_media_wysiwyg.tinymce.toolbar', $config['tinymce']['toolbar'])
+            ->set('oh_media_wysiwyg.tinymce.link_classes_list', $config['tinymce']['link_classes_list'])
         ;
 
         $containerBuilder->registerForAutoconfiguration(AbstractContentLinkProvider::class)

@@ -15,6 +15,7 @@
 const OH_MEDIA_TINYMCE_PLUGINS = {{ plugins|js }};
 const OH_MEDIA_TINYMCE_MENU = {{ menu|js }};
 const OH_MEDIA_TINYMCE_TOOLBAR = {{ toolbar|js }};
+const OH_MEDIA_TINYMCE_LINK_CLASSES_LIST = {{ link_classes_list|js }};
 const OH_MEDIA_TINYMCE_VALID_ELEMENTS = {{ valid_elements|js }};
 
 function OH_MEDIA_TINYMCE(container, selector) {
@@ -50,6 +51,7 @@ function OH_MEDIA_TINYMCE(container, selector) {
           'Blockquote=blockquote',
           'Div=div',
       ].join(';'),
+      link_class_list: OH_MEDIA_TINYMCE_LINK_CLASSES_LIST,
       paste_block_drop: true,
       paste_data_images: false,
       quickbars_insert_toolbar: false,
