@@ -162,6 +162,23 @@ class WysiwygType extends AbstractType
             $data = str_replace($image[0], $shortcode, $data);
         }
 
+        // find any remaining file URLs
+        preg_match_all('/href="(\/f\/([^\/]*)\/[^"]*)"/', $data, $files, \PREG_SET_ORDER);
+
+        foreach ($files as $f) {
+            $token = $f[2];
+
+            $file = $this->fileRepository->findOneByToken($token);
+
+            if (!$file) {
+                continue;
+            }
+
+            $shortcode = '{{file_href('.$file->getId().')}}';
+
+            $data = str_replace($f[1], $shortcode, $data);
+        }
+
         return $data;
     }
 
