@@ -91,6 +91,18 @@ class Wysiwyg
                 ->getQuery()
                 ->getResult();
 
+            // determine if we need to search for {{image(ID, ...)}}
+            preg_match('/{{image\((\d+)\)}}/', $shortcode, $matches);
+
+            if ($matches) {
+                $otherShortcode = '{{image('.$matches[1].',%)}}';
+                $otherEntities = $repository->getShortcodeQueryBuilder($otherShortcode)
+                    ->getQuery()
+                    ->getResult();
+
+                $entities = array_merge($entities, $otherEntities);
+            }
+
             $links = [];
 
             foreach ($entities as $entity) {
@@ -101,7 +113,7 @@ class Wysiwyg
 
                 $text = $repository->getShortcodeLinkText($entity);
 
-                $links[] = [
+                $links[$entity->getId()] = [
                     'href' => $href,
                     'text' => $text,
                 ];
@@ -117,7 +129,7 @@ class Wysiwyg
                     ];
                 }
 
-                $placements[$heading]['links'] += $links;
+                $placements[$heading]['links'] += array_values($links);
             }
         }
 
