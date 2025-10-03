@@ -4,7 +4,6 @@ namespace OHMedia\WysiwygBundle\Form\Type;
 
 use OHMedia\FileBundle\Repository\FileRepository;
 use OHMedia\FileBundle\Service\FileManager;
-use OHMedia\FileBundle\Service\ImageManager;
 use OHMedia\WysiwygBundle\Service\Wysiwyg;
 use OHMedia\WysiwygBundle\Util\HtmlTags;
 use Symfony\Component\Form\AbstractType;
@@ -23,7 +22,6 @@ class WysiwygType extends AbstractType
     public function __construct(
         private FileRepository $fileRepository,
         private FileManager $fileManager,
-        private ImageManager $imageManager,
         private Wysiwyg $wysiwyg,
     ) {
     }
@@ -38,13 +36,6 @@ class WysiwygType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        // TODO: PRE_SET_DATA event that converts the following into HTML:
-        // - {{file_href(ID)}}
-        // - {{image(ID)}}
-        // - {{image(ID, WIDTH)}}
-        // - {{image(ID, null, HEIGHT)}}
-        // - {{image(ID, WIDTH, HEIGHT)}}
-
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
             [$this, 'replaceShortcodes']
@@ -78,7 +69,6 @@ class WysiwygType extends AbstractType
     {
         $data = $event->getData();
 
-        // TODO: do we actually need to do this?
         preg_match_all('/{{file_href\(([^(]*)\)}}/', $data, $files, \PREG_SET_ORDER);
 
         foreach ($files as $file) {
@@ -111,14 +101,20 @@ class WysiwygType extends AbstractType
             $image = $this->fileRepository->find($args[0]);
 
             if ($image) {
-                $data = str_replace(
-                    $shortcode,
-                    $this->imageManager->render($image, [
-                        'width' => $width,
-                        'height' => $height,
-                    ]),
-                    $data
-                );
+                $src = $this->fileManager->getWebPath($image);
+                $img = '<img src="'.$src.'"';
+
+                if ($width) {
+                    $img .= ' width="'.$width.'"';
+                }
+
+                if ($height) {
+                    $img .= ' height="'.$height.'"';
+                }
+
+                $img .= '>';
+
+                $data = str_replace($shortcode, $img, $data);
             }
         }
 
