@@ -237,9 +237,11 @@ class Wysiwyg
                     // string surrounded by double-quotes
                     // give back a string escaped and surrounded by double-quotes
                     $arg = $dq.addslashes(trim($arg, $dq)).$dq;
+                } elseif ('null' === $arg) {
+                    // leave it
                 } else {
                     // not a string - force int
-                    $arg = intval($arg);
+                    $arg = abs(intval($arg));
                 }
 
                 $args[$i] = $arg;
