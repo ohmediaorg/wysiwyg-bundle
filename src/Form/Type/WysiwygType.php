@@ -67,7 +67,7 @@ class WysiwygType extends AbstractType
 
     public function replaceShortcodes(PreSetDataEvent $event): void
     {
-        $data = $event->getData();
+        $data = $event->getData() ?? '';
 
         preg_match_all('/{{file_href\(([^(]*)\)}}/', $data, $files, \PREG_SET_ORDER);
 
