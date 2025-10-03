@@ -215,7 +215,7 @@ export default function (filesUrl) {
         const linkText = selectedText ? selectedText : item.name;
 
         editor.insertContent(
-          `<a href="{{file_href(${item.id})}}" title="${item.name}" target="_blank">${linkText}</a>`
+          `<a href="${item.path}" title="${item.name}" target="_blank">${linkText}</a>`
         );
 
         dialog.close();
@@ -293,7 +293,9 @@ export default function (filesUrl) {
               row = getFolderRow(item, populateFiles.bind(null, item.url));
             } else if ('image' === item.type) {
               const onclickImage = () => {
-                editor.insertContent(`{{image(${item.id})}}`);
+                editor.insertContent(
+                  `<img src="${item.path}" width="${item.width}" height="${item.height}">`
+                );
 
                 dialog.close();
               };

@@ -79,6 +79,7 @@ class TinyMCEController extends AbstractController
                 $item = [
                     'name' => (string) $listingItem,
                     'id' => (string) $id,
+                    'path' => $this->fileManager->getWebPath($listingItem),
                     'locked' => $listingItem->isLocked(),
                 ];
 
@@ -89,6 +90,9 @@ class TinyMCEController extends AbstractController
                         'height' => 40,
                         'style' => 'height:40px;display:block',
                     ]);
+
+                    list($item['width'], $item['height'])
+                        = $imageManager->constrainWidthAndHeight($listingItem->getWidth(), $listingItem->getHeight());
                 } else {
                     $item['type'] = 'file';
                 }
