@@ -47,7 +47,7 @@ class WysiwygType extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            [$this, 'onPreSetData']
+            [$this, 'replaceShortcodes']
         );
 
         $builder->addEventListener(
@@ -72,10 +72,11 @@ class WysiwygType extends AbstractType
         );
     }
 
-    public function onPreSetData(PreSetDataEvent $event): void
+    public function replaceShortcodes(PreSetDataEvent $event): void
     {
         $data = $event->getData();
 
+        // TODO: do we actually need to do this?
         preg_match_all('/{{file_href\(([^(]*)\)}}/', $data, $files, \PREG_SET_ORDER);
 
         foreach ($files as $file) {
