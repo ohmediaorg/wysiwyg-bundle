@@ -55,6 +55,8 @@ class WysiwygType extends AbstractType
             function (FormEvent $event) use ($options) {
                 $data = $event->getData();
 
+                $data = $this->restoreShortcodes($data);
+
                 if ($this->wysiwyg->isValid($data)) {
                     $filtered = $this->wysiwyg->filter(
                         $data,
@@ -121,6 +123,47 @@ class WysiwygType extends AbstractType
         }
 
         $event->setData($data);
+    }
+
+    private function restoreShortcodes(string $data): string
+    {
+        preg_match_all('/<img[^>]*>/', $data, $images);
+
+        foreach ($images as $image) {
+            preg_match('/src="\/f\/([^\/]*)\/[^"]*"/', $image[0], $src);
+            preg_match('/width="([^"]*)"/', $image[0], $width);
+            preg_match('/height="([^"]*)"/', $image[0], $height);
+
+            if (!$src) {
+                continue;
+            }
+
+            $token = $src[1];
+
+            $file = $this->fileRepository->findOneByToken($token);
+
+            if (!$file) {
+                continue;
+            }
+
+            $args = [$file->getId()];
+
+            if ($width && $height) {
+                $args[] = $width[1];
+                $args[] = $height[1];
+            } elseif ($width) {
+                $args[] = $width[1];
+            } elseif ($height) {
+                $args[] = 'null';
+                $args[] = $height[1];
+            }
+
+            $shortcode = '{{image('.implode(',', $args).')}}';
+
+            $data = str_replace($image[0], $shortcode, $data);
+        }
+
+        return $data;
     }
 
     public function buildView(FormView $view, FormInterface $form, array $options): void
