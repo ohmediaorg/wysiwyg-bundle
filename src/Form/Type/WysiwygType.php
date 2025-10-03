@@ -126,7 +126,7 @@ class WysiwygType extends AbstractType
 
     private function restoreShortcodes(string $data): string
     {
-        preg_match_all('/<img[^>]*>/', $data, $images);
+        preg_match_all('/<img[^>]*>/', $data, $images, \PREG_SET_ORDER);
 
         foreach ($images as $image) {
             preg_match('/src="\/f\/([^\/]*)\/[^"]*"/', $image[0], $src);
