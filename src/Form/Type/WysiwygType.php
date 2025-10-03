@@ -102,17 +102,20 @@ class WysiwygType extends AbstractType
 
             if ($image) {
                 $src = $this->fileManager->getWebPath($image);
-                $img = '<img src="'.$src.'"';
+
+                $attributes = [
+                    'src="'.$src.'"',
+                ];
 
                 if ($width) {
-                    $img .= ' width="'.$width.'"';
+                    $attributes[] = 'width="'.$width.'"';
                 }
 
                 if ($height) {
-                    $img .= ' height="'.$height.'"';
+                    $attributes[] = 'height="'.$height.'"';
                 }
 
-                $img .= '>';
+                $img = '<img '.implode(' ', $attributes).'>';
 
                 $data = str_replace($shortcode, $img, $data);
             }
