@@ -38,12 +38,17 @@ function OH_MEDIA_TINYMCE(container, selector) {
 
     tinymce.init({
       target: el,
+      license_key: 'gpl',
+      max_height: 600,
       plugins: plugins,
       menu: OH_MEDIA_TINYMCE_MENU,
       toolbar: OH_MEDIA_TINYMCE_TOOLBAR,
       toolbar_mode: 'wrap',
+      valid_elements: validElements,
+
       content_style: "a.oh-tinymce-button { border:1px solid; padding:5px; }",
       link_class_list: OH_MEDIA_TINYMCE_LINK_CLASS_LIST,
+
       image_list: '{{ path('tinymce_image_list') }}',
       image_caption: true,
       image_description: false,
@@ -51,23 +56,28 @@ function OH_MEDIA_TINYMCE(container, selector) {
       images_upload_url: '{{ path('tinymce_image_upload') }}',
       images_file_types: 'jpeg,jpg,png,gif,svg',
       image_advtab: true,
+
       block_formats: [
-          'Paragraph=p',
-          'Heading 2=h2',
-          'Heading 3=h3',
-          'Heading 4=h4',
-          'Heading 5=h5',
-          'Heading 6=h6',
-          'Blockquote=blockquote',
-          'Div=div',
+        'Paragraph=p',
+        'Heading 2=h2',
+        'Heading 3=h3',
+        'Heading 4=h4',
+        'Heading 5=h5',
+        'Heading 6=h6',
+        'Blockquote=blockquote',
+        'Div=div',
       ].join(';'),
+
+      // Drag/drop content cannot be filtered due to browser limitations
       paste_block_drop: true,
+
+      // No base64 strings
       paste_data_images: false,
+
       quickbars_insert_toolbar: false,
       quickbars_image_toolbar: false,
-      license_key: 'gpl',
-      max_height: 600,
-      valid_elements: validElements,
+
+      // url options
       document_base_url: '{{ app.request.baseUrl }}/',
       relative_urls: false,
       urlconverter_callback: function(url, node, on_save, name) {
