@@ -43,7 +43,7 @@ services:
           - "%oh_media_wysiwyg.tinymce.plugins%"
           - "%oh_media_wysiwyg.tinymce.menu%"
           - "%oh_media_wysiwyg.tinymce.toolbar%"
-          - "%oh_media_wysiwyg.tinymce.link_classes_list%"
+          - "%oh_media_wysiwyg.tinymce.link_class_list%"
           - "%oh_media_wysiwyg.allowed_tags%"
         public: false
         tags:

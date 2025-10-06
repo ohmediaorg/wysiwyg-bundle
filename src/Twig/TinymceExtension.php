@@ -50,7 +50,7 @@ class TinymceExtension extends AbstractExtension
             'plugins' => $this->plugins,
             'menu' => $this->menu,
             'toolbar' => $this->toolbar,
-            'link_classes_list' => $this->linkClassList,
+            'link_class_list' => $this->linkClassList,
             'file_browser_enabled' => $this->fileBrowser->isEnabled(),
             'valid_elements' => $this->validElements,
         ]);

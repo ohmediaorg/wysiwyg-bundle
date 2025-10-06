@@ -15,7 +15,7 @@
 const OH_MEDIA_TINYMCE_PLUGINS = {{ plugins|js }};
 const OH_MEDIA_TINYMCE_MENU = {{ menu|js }};
 const OH_MEDIA_TINYMCE_TOOLBAR = {{ toolbar|js }};
-const OH_MEDIA_TINYMCE_LINK_CLASSES_LIST = {{ link_classes_list|js }};
+const OH_MEDIA_TINYMCE_LINK_CLASS_LIST = {{ link_class_list|js }};
 const OH_MEDIA_TINYMCE_VALID_ELEMENTS = {{ valid_elements|js }};
 
 function OH_MEDIA_TINYMCE(container, selector) {
@@ -44,6 +44,7 @@ function OH_MEDIA_TINYMCE(container, selector) {
       image_list: '{{ path('tinymce_image_list') }}',
       image_caption: true,
       image_description: false,
+      content_style: "a.btn { border:1px solid; padding:5px; }",
       image_class_list: [
         { title: 'None', value: '' },
         { title: 'Float left', value: 'float-start' },
@@ -59,7 +60,7 @@ function OH_MEDIA_TINYMCE(container, selector) {
           'Blockquote=blockquote',
           'Div=div',
       ].join(';'),
-      link_class_list: OH_MEDIA_TINYMCE_LINK_CLASSES_LIST,
+      link_class_list: OH_MEDIA_TINYMCE_LINK_CLASS_LIST,
       paste_block_drop: true,
       paste_data_images: false,
       quickbars_insert_toolbar: false,
