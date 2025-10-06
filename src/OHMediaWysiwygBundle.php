@@ -163,6 +163,20 @@ class OHMediaWysiwygBundle extends AbstractBundle
                             ->end()
                         ->end()
                     ->end()
+                    ->arrayNode('image_class_list')
+                        ->arrayPrototype()
+                            ->children()
+                                ->scalarNode('title')
+                                    ->isRequired()
+                                    ->cannotBeEmpty()
+                                ->end()
+                                ->scalarNode('value')
+                                    ->isRequired()
+                                    ->cannotBeEmpty()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end()
         ;
@@ -199,11 +213,19 @@ class OHMediaWysiwygBundle extends AbstractBundle
             ]);
         }
 
+        if ($config['tinymce']['image_class_list']) {
+            array_unshift($config['tinymce']['image_class_list'], [
+                'title' => 'None',
+                'value' => '',
+            ]);
+        }
+
         $containerConfigurator->parameters()
             ->set('oh_media_wysiwyg.tinymce.plugins', $config['tinymce']['plugins'])
             ->set('oh_media_wysiwyg.tinymce.menu', $config['tinymce']['menu'])
             ->set('oh_media_wysiwyg.tinymce.toolbar', $config['tinymce']['toolbar'])
             ->set('oh_media_wysiwyg.tinymce.link_class_list', $config['tinymce']['link_class_list'])
+            ->set('oh_media_wysiwyg.tinymce.image_class_list', $config['tinymce']['image_class_list'])
         ;
 
         $containerBuilder->registerForAutoconfiguration(AbstractContentLinkProvider::class)
