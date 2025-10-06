@@ -187,13 +187,15 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         foreach ($config['tinymce']['link_class_list'] as $i => $linkClass) {
             if ($linkClass['button']) {
-                $config['tinymce']['link_class_list'][$i]['value'] = ' oh-tinymce-button';
+                $config['tinymce']['link_class_list'][$i]['value'] .= ' oh-tinymce-button';
             }
         }
 
         if ($config['tinymce']['link_class_list']) {
             array_unshift($config['tinymce']['link_class_list'], [
-                ['title' => 'None', 'value' => '', 'button' => false],
+                'title' => 'None',
+                'value' => '',
+                'button' => false,
             ]);
         }
 
