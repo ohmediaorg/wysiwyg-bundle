@@ -13,6 +13,7 @@ use OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager;
 use OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,6 +25,29 @@ class TinyMCEController extends AbstractController
         private FileFolderRepository $fileFolderRepository,
         private FileManager $fileManager,
     ) {
+    }
+
+    #[Route('/image-upload', name: 'tinymce_image_upload')]
+    public function imageUpload(
+        FileRepository $fileRepository,
+        Request $request,
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
+
+        if (!$request->files->has('file')) {
+            throw $this->createAccessDeniedException('No file found.');
+        }
+
+        $file = new File();
+        $file->setFile($request->files->get('file'));
+        $file->setBrowser(true);
+        $file->setImage(true);
+
+        $fileRepository->save($file, true);
+
+        return new JsonResponse([
+            'location' => $this->fileManager->getWebPath($file),
+        ]);
     }
 
     #[Route('/shortcodes', name: 'tinymce_shortcodes')]
