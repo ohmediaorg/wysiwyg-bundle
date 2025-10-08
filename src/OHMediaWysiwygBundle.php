@@ -95,7 +95,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $menu['insert'] = [
             'title' => 'Insert',
-            'items' => 'link | charmap hr | anchor',
+            'items' => 'link image | charmap hr | anchor',
         ];
 
         $menu['format'] = [
@@ -120,7 +120,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $toolbar = [
             'undo redo',
-            'blocks ohshortcodes image ohfilebrowser ohcontentlinks',
+            'blocks image ohshortcodes ohfilebrowser ohcontentlinks',
             'bold italic underline numlist bullist',
             'alignleft aligncenter alignright alignjustify',
             'outdent indent',
