@@ -195,11 +195,7 @@ class TinyMCEController extends AbstractController
     private function populateImage(File $file): ImagePickerItem
     {
         $item = new ImagePickerItem($file->getFileName());
-        $item->setImage(
-            $this->fileManager->getWebPath($file),
-            $file->getWidth(),
-            $file->getHeight(),
-        );
+        $item->setWebPath($this->fileManager->getWebPath($file));
 
         return $item;
     }

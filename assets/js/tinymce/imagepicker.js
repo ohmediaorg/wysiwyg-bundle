@@ -256,7 +256,6 @@
 export default function (imagepickerUrl) {
   async function open(editor, callback, value) {
     let originalValue = value;
-    let data = null;
 
     const dialogConfig = {
       title: 'Image Picker',
@@ -275,9 +274,7 @@ export default function (imagepickerUrl) {
         callback(originalValue);
       },
       onSubmit: (api) => {
-        if (data) {
-          callback(data.value, data.meta);
-        }
+        callback(value);
 
         api.close();
       },
@@ -308,7 +305,7 @@ export default function (imagepickerUrl) {
             type: 'tree',
             items: items,
             onLeafAction(id) {
-              data = JSON.parse(id);
+              value = id;
 
               dialog.setEnabled('select_button', true);
             },
