@@ -10,7 +10,9 @@ use OHMedia\FileBundle\Service\FileBrowser;
 use OHMedia\FileBundle\Service\FileManager;
 use OHMedia\FileBundle\Service\ImageManager;
 use OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager;
+use OHMedia\WysiwygBundle\ImagePicker\ImagePickerItem;
 use OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager;
+use OHMedia\WysiwygBundle\TinyMCE\TreeItemBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -141,8 +143,8 @@ class TinyMCEController extends AbstractController
         ]);
     }
 
-    #[Route('/image-list', name: 'tinymce_image_list')]
-    public function imageList(
+    #[Route('/imagepicker', name: 'tinymce_imagepicker')]
+    public function imagepicker(
         FileRepository $fileRepository,
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
@@ -167,61 +169,68 @@ class TinyMCEController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        $items = [];
+        $treeItems = [];
 
         foreach ($topLevelImages as $image) {
-            $items[] = $this->populateImage($image);
+            $treeItems[] = $this->populateImage($image);
         }
 
         foreach ($topLevelFolders as $folder) {
             $item = $this->populateMenu($folder);
 
-            if (!$item['menu']) {
+            if (!$item->getChildren()) {
                 continue;
             }
 
-            $items[] = $item;
+            $treeItems[] = $item;
         }
 
-        $this->sortItems($items);
+        $this->sortItems($treeItems);
 
-        return new JsonResponse($items);
+        $treeItemBuilder = new TreeItemBuilder();
+
+        return new JsonResponse($treeItemBuilder->getTreeItems(...$treeItems));
     }
 
-    private function populateImage(File $file): array
+    private function populateImage(File $file): ImagePickerItem
     {
-        return [
-            'title' => $file->getFileName(),
-            'value' => $this->fileManager->getWebPath($file),
-        ];
+        $item = new ImagePickerItem($file->getFileName());
+        $item->setImage(
+            $this->fileManager->getWebPath($file),
+            $file->getWidth(),
+            $file->getHeight(),
+        );
+
+        return $item;
     }
 
-    private function populateMenu(FileFolder $folder): array
+    private function populateMenu(FileFolder $folder): ImagePickerItem
     {
-        $item = [
-            'title' => $folder->getName(),
-            'menu' => [],
-        ];
+        $item = new ImagePickerItem($folder->getName());
+
+        $children = [];
 
         foreach ($folder->getFiles() as $file) {
             if (!$file->isImage()) {
                 continue;
             }
 
-            $item['menu'][] = $this->populateImage($file);
+            $children[] = $this->populateImage($file);
         }
 
         foreach ($folder->getFolders() as $folder) {
             $subitem = $this->populateMenu($folder);
 
-            if (!$subitem['menu']) {
+            if (!$subitem->getChildren()) {
                 continue;
             }
 
-            $item['menu'][] = $subitem;
+            $children[] = $subitem;
         }
 
-        $this->sortItems($item['menu']);
+        $this->sortItems($children);
+
+        $item->setChildren(...$children);
 
         return $item;
     }
@@ -229,7 +238,7 @@ class TinyMCEController extends AbstractController
     private function sortItems(array &$items): array
     {
         usort($items, function ($a, $b) {
-            return strtolower($a['title']) <=> strtolower($b['title']);
+            return strtolower($a->getText()) <=> strtolower($b->getText());
         });
 
         return $items;

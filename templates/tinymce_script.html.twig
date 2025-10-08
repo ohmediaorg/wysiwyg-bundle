@@ -18,6 +18,8 @@ const OH_MEDIA_TINYMCE_LINK_CLASS_LIST = {{ link_class_list|js }};
 const OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST = {{ image_class_list|js }};
 const OH_MEDIA_TINYMCE_VALID_ELEMENTS = {{ valid_elements|js }};
 
+let OH_MEDIA_TINYMCE_IMAGEPICKER = null;
+
 function OH_MEDIA_TINYMCE(container, selector) {
   const els = container.querySelectorAll(selector);
 
@@ -45,10 +47,14 @@ function OH_MEDIA_TINYMCE(container, selector) {
       toolbar_mode: 'wrap',
       valid_elements: validElements,
 
+      file_picker_types: 'image',
+      file_picker_callback: function (callback, value, meta) {
+        OH_MEDIA_TINYMCE_IMAGEPICKER.open(this, callback, value);
+      },
+
       content_style: "a.oh-tinymce-button { border:1px solid; padding:5px; }",
       link_class_list: OH_MEDIA_TINYMCE_LINK_CLASS_LIST,
 
-      image_list: '{{ path('tinymce_image_list') }}',
       image_caption: true,
       image_description: false,
       image_class_list: OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST,
@@ -124,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   {% if file_browser_enabled %}
   window.initTinyMCEFilebrowserPlugin('{{ path('tinymce_filebrowser') }}');
+  OH_MEDIA_TINYMCE_IMAGEPICKER = window.initTinyMCEImagePicker('{{ path('tinymce_imagepicker') }}');
   {% endif %}
 
   window.initTinyMCEContentlinkPlugin('{{ path('tinymce_contentlinks') }}');
