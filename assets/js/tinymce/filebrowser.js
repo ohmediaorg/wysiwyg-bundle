@@ -338,14 +338,14 @@ export default function (filesUrl) {
 
     editor.ui.registry.addButton('ohfilebrowser', {
       name: 'File Browser',
-      icon: 'image',
+      icon: 'browse',
       tooltip: 'File Browser',
       onAction: openDialog,
     });
 
     editor.ui.registry.addMenuItem('ohfilebrowser', {
       text: 'File Browser',
-      icon: 'image',
+      icon: 'browse',
       onAction: openDialog,
     });
 
