@@ -11,6 +11,7 @@
 <script src="/backend/js/tinymce/tinymce.min.js"></script>
 
 <script async>
+const OH_MEDIA_FILE_BROWSER_ENABLED = {{ file_browser_enabled|js }};
 const OH_MEDIA_TINYMCE_PLUGINS = {{ plugins|js }};
 const OH_MEDIA_TINYMCE_MENU = {{ menu|js }};
 const OH_MEDIA_TINYMCE_TOOLBAR = {{ toolbar|js }};
@@ -37,7 +38,7 @@ function OH_MEDIA_TINYMCE(container, selector) {
 
     const validElements = el.dataset.tinymceValidElements ?? OH_MEDIA_TINYMCE_VALID_ELEMENTS;
 
-    tinymce.init({
+    const tinymceOptions = {
       target: el,
       license_key: 'gpl',
       max_height: 600,
@@ -47,21 +48,13 @@ function OH_MEDIA_TINYMCE(container, selector) {
       toolbar_mode: 'wrap',
       valid_elements: validElements,
 
-      content_style: "a.oh-tinymce-button { border:1px solid; padding:5px; }",
+      content_style: 'a.oh-tinymce-button { border:1px solid; padding:5px; }',
       link_class_list: OH_MEDIA_TINYMCE_LINK_CLASS_LIST,
 
       image_caption: true,
       image_description: false,
       image_class_list: OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST,
       images_file_types: 'jpeg,jpg,png,gif,bmp,webp,svg',
-
-      {% if file_browser_enabled %}
-      images_upload_url: '{{ path('tinymce_image_upload') }}',
-      file_picker_types: 'image',
-      file_picker_callback: function (callback, value, meta) {
-        OH_MEDIA_TINYMCE_IMAGEBROWSER.open(this, callback, value);
-      },
-      {% endif %}
 
       block_formats: [
         'Paragraph=p',
@@ -122,19 +115,29 @@ function OH_MEDIA_TINYMCE(container, selector) {
 
         return url;
       },
-    });
+    };
+
+    if (OH_MEDIA_FILE_BROWSER_ENABLED) {
+      tinymceOptions.images_upload_url = "{{ path('tinymce_image_upload') }}";
+      tinymceOptions.file_picker_types = 'image';
+      tinymceOptions.file_picker_callback = function (callback, value, meta) {
+        OH_MEDIA_TINYMCE_IMAGEBROWSER.open(this, callback, value);
+      };
+    }
+
+    tinymce.init(tinymceOptions);
   });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  window.initTinyMCEShortcodesPlugin('{{ path('tinymce_shortcodes') }}');
+  window.initTinyMCEShortcodesPlugin("{{ path('tinymce_shortcodes') }}");
 
-  {% if file_browser_enabled %}
-  window.initTinyMCEFilebrowserPlugin('{{ path('tinymce_filebrowser') }}');
-  OH_MEDIA_TINYMCE_IMAGEBROWSER = window.initTinyMCEImageBrowser('{{ path('tinymce_imagebrowser') }}');
-  {% endif %}
+  if (OH_MEDIA_FILE_BROWSER_ENABLED) {
+    window.initTinyMCEFilebrowserPlugin("{{ path('tinymce_filebrowser') }}");
+    OH_MEDIA_TINYMCE_IMAGEBROWSER = window.initTinyMCEImageBrowser("{{ path('tinymce_imagebrowser') }}");
+  }
 
-  window.initTinyMCEContentlinkPlugin('{{ path('tinymce_contentlinks') }}');
+  window.initTinyMCEContentlinkPlugin("{{ path('tinymce_contentlinks') }}");
 
   OH_MEDIA_TINYMCE(document, 'textarea.tinymce');
 });
