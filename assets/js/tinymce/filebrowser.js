@@ -253,7 +253,7 @@ export default function (filesUrl) {
 
             if ('folder' === item.type) {
               row = getFolderRow(item, populateFiles.bind(null, item.url));
-            } else if ('file' === item.type) {
+            } else {
               row = getFileRow(item, onclickFile.bind(null, item));
             }
 
