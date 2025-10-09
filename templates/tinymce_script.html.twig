@@ -18,7 +18,7 @@ const OH_MEDIA_TINYMCE_LINK_CLASS_LIST = {{ link_class_list|js }};
 const OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST = {{ image_class_list|js }};
 const OH_MEDIA_TINYMCE_VALID_ELEMENTS = {{ valid_elements|js }};
 
-let OH_MEDIA_TINYMCE_IMAGEPICKER = null;
+let OH_MEDIA_TINYMCE_IMAGEBROWSER = null;
 
 function OH_MEDIA_TINYMCE(container, selector) {
   const els = container.querySelectorAll(selector);
@@ -49,7 +49,7 @@ function OH_MEDIA_TINYMCE(container, selector) {
 
       file_picker_types: 'image',
       file_picker_callback: function (callback, value, meta) {
-        OH_MEDIA_TINYMCE_IMAGEPICKER.open(this, callback, value);
+        OH_MEDIA_TINYMCE_IMAGEBROWSER.open(this, callback, value);
       },
 
       content_style: "a.oh-tinymce-button { border:1px solid; padding:5px; }",
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   {% if file_browser_enabled %}
   window.initTinyMCEFilebrowserPlugin('{{ path('tinymce_filebrowser') }}');
-  OH_MEDIA_TINYMCE_IMAGEPICKER = window.initTinyMCEImagePicker('{{ path('tinymce_imagepicker') }}');
+  OH_MEDIA_TINYMCE_IMAGEBROWSER = window.initTinyMCEImageBrowser('{{ path('tinymce_imagebrowser') }}');
   {% endif %}
 
   window.initTinyMCEContentlinkPlugin('{{ path('tinymce_contentlinks') }}');

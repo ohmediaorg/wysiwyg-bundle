@@ -10,9 +10,7 @@ use OHMedia\FileBundle\Service\FileBrowser;
 use OHMedia\FileBundle\Service\FileManager;
 use OHMedia\FileBundle\Service\ImageManager;
 use OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager;
-use OHMedia\WysiwygBundle\ImagePicker\ImagePickerItem;
 use OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager;
-use OHMedia\WysiwygBundle\TinyMCE\TreeItemBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +24,7 @@ class TinyMCEController extends AbstractController
         private FileBrowser $fileBrowser,
         private FileFolderRepository $fileFolderRepository,
         private FileManager $fileManager,
+        private ImageManager $imageManager,
     ) {
     }
 
@@ -73,9 +72,25 @@ class TinyMCEController extends AbstractController
      * the localstorage in filebrowser.js.
      */
     #[Route('/filebrowser/{id}', name: 'tinymce_filebrowser')]
-    public function files(
-        ImageManager $imageManager,
-        ?int $id = null
+    public function files(?int $id = null): Response
+    {
+        return $this->getFileBrowserResponse($id, false, true);
+    }
+
+    /**
+     * If you alter this URL, you'll need to invalidate
+     * the localstorage in imagebrowser.js.
+     */
+    #[Route('/imagebrowser/{id}', name: 'tinymce_imagebrowser')]
+    public function images(?int $id = null): Response
+    {
+        return $this->getFileBrowserResponse($id, true, false);
+    }
+
+    private function getFileBrowserResponse(
+        ?int $id = null,
+        bool $includeImages = true,
+        bool $includeFiles = true,
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
 
@@ -85,7 +100,11 @@ class TinyMCEController extends AbstractController
 
         $fileFolder = $id ? $this->fileFolderRepository->find($id) : null;
 
-        $listingItems = $this->fileBrowser->getListing($fileFolder);
+        $listingItems = $this->fileBrowser->getListing(
+            $fileFolder,
+            $includeImages,
+            $includeFiles,
+        );
 
         $items = [];
 
@@ -111,14 +130,19 @@ class TinyMCEController extends AbstractController
 
                 if ($listingItem->isImage()) {
                     $item['type'] = 'image';
-                    $item['image'] = $imageManager->render($listingItem, [
+                    $item['image'] = $this->imageManager->render($listingItem, [
                         'width' => 40,
                         'height' => 40,
                         'style' => 'height:40px;display:block',
                     ]);
 
-                    list($item['width'], $item['height'])
-                        = $imageManager->constrainWidthAndHeight($listingItem->getWidth(), $listingItem->getHeight());
+                    list(
+                        $item['width'],
+                        $item['height'],
+                    ) = $this->imageManager->constrainWidthAndHeight(
+                        $listingItem->getWidth(),
+                        $listingItem->getHeight(),
+                    );
                 } else {
                     $item['type'] = 'file';
                 }
@@ -141,102 +165,5 @@ class TinyMCEController extends AbstractController
             'back_path' => $backPath,
             'items' => $items,
         ]);
-    }
-
-    #[Route('/imagepicker', name: 'tinymce_imagepicker')]
-    public function imagepicker(
-        FileRepository $fileRepository,
-    ): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
-
-        if (!$this->fileBrowser->isEnabled()) {
-            return new JsonResponse([]);
-        }
-
-        $topLevelImages = $fileRepository->createQueryBuilder('i')
-            ->where('i.browser = 1')
-            ->andWhere('i.image = 1')
-            ->andWhere('IDENTITY(i.resize_parent) IS NULL')
-            ->andWhere('IDENTITY(i.folder) IS NULL')
-            ->orderBy('i.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-
-        $topLevelFolders = $this->fileFolderRepository->createQueryBuilder('ff')
-            ->where('ff.browser = 1')
-            ->andWhere('IDENTITY(ff.folder) IS NULL')
-            ->orderBy('ff.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-
-        $treeItems = [];
-
-        foreach ($topLevelImages as $image) {
-            $treeItems[] = $this->populateImage($image);
-        }
-
-        foreach ($topLevelFolders as $folder) {
-            $item = $this->populateMenu($folder);
-
-            if (!$item->getChildren()) {
-                continue;
-            }
-
-            $treeItems[] = $item;
-        }
-
-        $this->sortItems($treeItems);
-
-        $treeItemBuilder = new TreeItemBuilder();
-
-        return new JsonResponse($treeItemBuilder->getTreeItems(...$treeItems));
-    }
-
-    private function populateImage(File $file): ImagePickerItem
-    {
-        $item = new ImagePickerItem($file->getFileName());
-        $item->setWebPath($this->fileManager->getWebPath($file));
-
-        return $item;
-    }
-
-    private function populateMenu(FileFolder $folder): ImagePickerItem
-    {
-        $item = new ImagePickerItem($folder->getName());
-
-        $children = [];
-
-        foreach ($folder->getFiles() as $file) {
-            if (!$file->isImage()) {
-                continue;
-            }
-
-            $children[] = $this->populateImage($file);
-        }
-
-        foreach ($folder->getFolders() as $folder) {
-            $subitem = $this->populateMenu($folder);
-
-            if (!$subitem->getChildren()) {
-                continue;
-            }
-
-            $children[] = $subitem;
-        }
-
-        $this->sortItems($children);
-
-        $item->setChildren(...$children);
-
-        return $item;
-    }
-
-    private function sortItems(array &$items): array
-    {
-        usort($items, function ($a, $b) {
-            return strtolower($a->getText()) <=> strtolower($b->getText());
-        });
-
-        return $items;
     }
 }

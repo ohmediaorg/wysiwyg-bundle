@@ -76,35 +76,6 @@ function getFolderRow(item, onclick) {
   return row;
 }
 
-function getImageRow(item, onclickImage, onclickLink) {
-  const row = getRow();
-
-  const col1 = getColumnOne();
-  col1.innerHTML = item.image;
-
-  row.append(col1);
-
-  const col2 = getColumn();
-  col2.innerHTML = item.name + ' (ID:' + item.id + ')';
-
-  if (item.locked) {
-    col2.innerHTML += '<i class="bi bi-lock-fill text-secondary"></i>';
-  }
-
-  row.append(col2);
-
-  const col3 = getColumn();
-  col3.className = 'tox-toolbar__group';
-  col3.style.textAlign = 'right';
-
-  col3.append(getButtonImage(onclickImage));
-  col3.append(getButtonLink(onclickLink));
-
-  row.append(col3);
-
-  return row;
-}
-
 function getFileRow(item, onclickLink) {
   const row = getRow();
 
@@ -151,15 +122,6 @@ function getButtonLink(onclick) {
   const button = getButton();
   button.dataset.mceTooltip = 'Insert Link';
   button.innerHTML = '<i class="bi bi-link-45deg"></i>';
-  button.onclick = onclick;
-
-  return button;
-}
-
-function getButtonImage(onclick) {
-  const button = getButton();
-  button.dataset.mceTooltip = 'Insert Image';
-  button.innerHTML = '<i class="bi bi-image"></i>';
   button.onclick = onclick;
 
   return button;
@@ -291,20 +253,6 @@ export default function (filesUrl) {
 
             if ('folder' === item.type) {
               row = getFolderRow(item, populateFiles.bind(null, item.url));
-            } else if ('image' === item.type) {
-              const onclickImage = () => {
-                editor.insertContent(
-                  `<img src="${item.path}" width="${item.width}" height="${item.height}">`
-                );
-
-                dialog.close();
-              };
-
-              row = getImageRow(
-                item,
-                onclickImage,
-                onclickFile.bind(null, item)
-              );
             } else if ('file' === item.type) {
               row = getFileRow(item, onclickFile.bind(null, item));
             }
