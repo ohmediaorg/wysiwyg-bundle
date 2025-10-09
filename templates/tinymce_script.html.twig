@@ -47,20 +47,21 @@ function OH_MEDIA_TINYMCE(container, selector) {
       toolbar_mode: 'wrap',
       valid_elements: validElements,
 
-      file_picker_types: 'image',
-      file_picker_callback: function (callback, value, meta) {
-        OH_MEDIA_TINYMCE_IMAGEBROWSER.open(this, callback, value);
-      },
-
       content_style: "a.oh-tinymce-button { border:1px solid; padding:5px; }",
       link_class_list: OH_MEDIA_TINYMCE_LINK_CLASS_LIST,
 
       image_caption: true,
       image_description: false,
       image_class_list: OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST,
-      images_upload_url: '{{ path('tinymce_image_upload') }}',
-      images_file_types: 'jpeg,jpg,png,gif,svg',
       image_advtab: true,
+
+      {% if file_browser_enabled %}
+      images_upload_url: '{{ path('tinymce_image_upload') }}',
+      file_picker_types: 'image',
+      file_picker_callback: function (callback, value, meta) {
+        OH_MEDIA_TINYMCE_IMAGEBROWSER.open(this, callback, value);
+      },
+      {% endif %}
 
       block_formats: [
         'Paragraph=p',
