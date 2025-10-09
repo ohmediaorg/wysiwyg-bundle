@@ -139,7 +139,6 @@ function getButton() {
 }
 
 export default function (imagebrowserUrl) {
-  console.log(imagebrowserUrl);
   async function open(editor, callback, value) {
     const dialogConfig = {
       title: 'Image Browser',
