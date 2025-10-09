@@ -76,6 +76,34 @@ function getFolderRow(item, onclick) {
   return row;
 }
 
+function getImageRow(item, onclickLink) {
+  const row = getRow();
+
+  const col1 = getColumnOne();
+  col1.innerHTML = item.image;
+
+  row.append(col1);
+
+  const col2 = getColumn();
+  col2.innerHTML = item.name + ' (ID:' + item.id + ')';
+
+  if (item.locked) {
+    col2.innerHTML += '<i class="bi bi-lock-fill text-secondary"></i>';
+  }
+
+  row.append(col2);
+
+  const col3 = getColumn();
+  col3.className = 'tox-toolbar__group';
+  col3.style.textAlign = 'right';
+
+  col3.append(getButtonLink(onclickLink));
+
+  row.append(col3);
+
+  return row;
+}
+
 function getFileRow(item, onclickLink) {
   const row = getRow();
 
@@ -253,11 +281,15 @@ export default function (filesUrl) {
 
             if ('folder' === item.type) {
               row = getFolderRow(item, populateFiles.bind(null, item.url));
-            } else {
+            } else if ('image' === item.type) {
+              row = getImageRow(item, onclickFile.bind(null, item));
+            } else if ('file' === item.type) {
               row = getFileRow(item, onclickFile.bind(null, item));
             }
 
-            container.append(row);
+            if (row) {
+              container.append(row);
+            }
           });
         } catch (e) {
           console.log(e);
