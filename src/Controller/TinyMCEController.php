@@ -74,7 +74,7 @@ class TinyMCEController extends AbstractController
     #[Route('/filebrowser/{id}', name: 'tinymce_filebrowser')]
     public function files(?int $id = null): Response
     {
-        return $this->getFileBrowserResponse($id, false, true);
+        return $this->getFileBrowserResponse($id, true, true);
     }
 
     /**
