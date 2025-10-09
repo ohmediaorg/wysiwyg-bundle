@@ -54,6 +54,7 @@ function OH_MEDIA_TINYMCE(container, selector) {
       image_description: false,
       image_class_list: OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST,
       image_advtab: true,
+      images_file_types: 'jpeg,jpg,png,gif,bmp,webp,svg',
 
       {% if file_browser_enabled %}
       images_upload_url: '{{ path('tinymce_image_upload') }}',
