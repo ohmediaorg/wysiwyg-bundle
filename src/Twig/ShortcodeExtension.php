@@ -26,7 +26,7 @@ class ShortcodeExtension extends AbstractExtension
     {
         $shortcode = Shortcode::format($shortcode);
 
-        return '<code data-shortcode="'.$shortcode.'">'.$shortcode.'</code>';
+        return '<code data-shortcode="'.$shortcode.'" class="d-block">'.$shortcode.'</code>';
     }
 
     private bool $rendered = false;
