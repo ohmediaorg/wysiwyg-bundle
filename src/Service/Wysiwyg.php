@@ -80,27 +80,20 @@ class Wysiwyg
             ->getSingleScalarResult() > 0;
     }
 
-    public function shortcodePlacements(string $shortcode): array
+    public function shortcodePlacements(string ...$shortcodes): array
     {
-        $shortcode = Shortcode::format($shortcode);
-
         $placements = [];
 
         foreach ($this->repositories as $repository) {
-            $entities = $repository->getShortcodeQueryBuilder($shortcode)
-                ->getQuery()
-                ->getResult();
+            $entities = [];
 
-            // determine if we need to search for {{image(ID, ...)}}
-            preg_match('/{{image\((\d+)\)}}/', $shortcode, $matches);
-
-            if ($matches) {
-                $otherShortcode = '{{image('.$matches[1].',%)}}';
-                $otherEntities = $repository->getShortcodeQueryBuilder($otherShortcode)
-                    ->getQuery()
-                    ->getResult();
-
-                $entities = array_merge($entities, $otherEntities);
+            foreach ($shortcodes as $shortcode) {
+                $entities = array_merge(
+                    $entities,
+                    $repository->getShortcodeQueryBuilder($shortcode)
+                        ->getQuery()
+                        ->getResult()
+                );
             }
 
             $links = [];

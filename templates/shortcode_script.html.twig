@@ -18,7 +18,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const shortcodes = document.querySelectorAll('code[data-shortcode]');
+  const shortcodes = document.querySelectorAll('code[data-shortcodes]');
 
   const modalEl = document.getElementById('shortcode_placements_modal');
 
@@ -32,7 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   shortcodes.forEach(function (el) {
     const params = new URLSearchParams();
-    params.append('shortcode', el.dataset.shortcode);
+
+    const json = el.dataset.shortcodes;
+
+    const search = JSON.parse(json);
+
+    search.forEach((shortcode) => {
+      params.append('shortcodes[]', shortcode);
+    });
 
     fetch(`{{ path('shortcode_placements') }}?${params}`)
       .then(r => r.json())

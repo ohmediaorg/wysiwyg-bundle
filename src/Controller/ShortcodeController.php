@@ -16,9 +16,11 @@ class ShortcodeController extends AbstractController
         Wysiwyg $wysiwyg,
         Request $request,
     ): Response {
-        $shortcode = $request->query->get('shortcode', null);
+        $shortcodes = $request->query->all('shortcodes', []);
 
-        $placements = $shortcode ? $wysiwyg->shortcodePlacements($shortcode) : [];
+        $placements = $shortcodes
+            ? $wysiwyg->shortcodePlacements(...$shortcodes)
+            : [];
 
         return new JsonResponse([
             'placements' => $placements,

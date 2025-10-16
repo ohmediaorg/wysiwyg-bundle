@@ -22,11 +22,17 @@ class ShortcodeExtension extends AbstractExtension
         ];
     }
 
-    public function shortcode(string $shortcode)
+    public function shortcode(string $shortcode, string ...$variations)
     {
         $shortcode = Shortcode::format($shortcode);
 
-        return '<code data-shortcode="'.$shortcode.'" class="d-block">'.$shortcode.'</code>';
+        $search = [$shortcode];
+
+        foreach ($variations as $variation) {
+            $search[] = Shortcode::format($variation);
+        }
+
+        return '<code data-shortcodes=\''.json_encode($search).'\' class="d-block">'.$shortcode.'</code>';
     }
 
     private bool $rendered = false;
