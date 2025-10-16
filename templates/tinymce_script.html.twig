@@ -1,13 +1,3 @@
-<style>
-.tox-promotion {
-  visibility: hidden !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-</style>
-
 <script src="/backend/js/tinymce/tinymce.min.js"></script>
 
 <script async>
@@ -47,6 +37,7 @@ function OH_MEDIA_TINYMCE(container, selector) {
       toolbar: OH_MEDIA_TINYMCE_TOOLBAR,
       toolbar_mode: 'wrap',
       valid_elements: validElements,
+      promotion: false,
 
       content_style: 'a.oh-tinymce-button { border:1px solid; padding:5px; }',
       link_class_list: OH_MEDIA_TINYMCE_LINK_CLASS_LIST,
