@@ -140,6 +140,7 @@ class TinyMCEController extends AbstractController
                         $item['width'],
                         $item['height'],
                     ) = $this->imageManager->constrainWidthAndHeight(
+                        $listingItem,
                         $listingItem->getWidth(),
                         $listingItem->getHeight(),
                     );
