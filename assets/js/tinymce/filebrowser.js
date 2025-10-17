@@ -76,7 +76,7 @@ function getFolderRow(item, onclick) {
   return row;
 }
 
-function getImageRow(item, onclickImage, onclickLink) {
+function getImageRow(item, onclickLink) {
   const row = getRow();
 
   const col1 = getColumnOne();
@@ -97,7 +97,6 @@ function getImageRow(item, onclickImage, onclickLink) {
   col3.className = 'tox-toolbar__group';
   col3.style.textAlign = 'right';
 
-  col3.append(getButtonImage(onclickImage));
   col3.append(getButtonLink(onclickLink));
 
   row.append(col3);
@@ -156,15 +155,6 @@ function getButtonLink(onclick) {
   return button;
 }
 
-function getButtonImage(onclick) {
-  const button = getButton();
-  button.dataset.mceTooltip = 'Insert Image';
-  button.innerHTML = '<i class="bi bi-image"></i>';
-  button.onclick = onclick;
-
-  return button;
-}
-
 function getButton() {
   const button = document.createElement('button');
   button.type = 'button';
@@ -215,7 +205,7 @@ export default function (filesUrl) {
         const linkText = selectedText ? selectedText : item.name;
 
         editor.insertContent(
-          `<a href="{{file_href(${item.id})}}" title="${item.name}" target="_blank">${linkText}</a>`
+          `<a href="${item.path}" title="${item.name}" target="_blank">${linkText}</a>`
         );
 
         dialog.close();
@@ -292,22 +282,14 @@ export default function (filesUrl) {
             if ('folder' === item.type) {
               row = getFolderRow(item, populateFiles.bind(null, item.url));
             } else if ('image' === item.type) {
-              const onclickImage = () => {
-                editor.insertContent(`{{image(${item.id})}}`);
-
-                dialog.close();
-              };
-
-              row = getImageRow(
-                item,
-                onclickImage,
-                onclickFile.bind(null, item)
-              );
+              row = getImageRow(item, onclickFile.bind(null, item));
             } else if ('file' === item.type) {
               row = getFileRow(item, onclickFile.bind(null, item));
             }
 
-            container.append(row);
+            if (row) {
+              container.append(row);
+            }
           });
         } catch (e) {
           console.log(e);
@@ -336,14 +318,14 @@ export default function (filesUrl) {
 
     editor.ui.registry.addButton('ohfilebrowser', {
       name: 'File Browser',
-      icon: 'image',
+      icon: 'browse',
       tooltip: 'File Browser',
       onAction: openDialog,
     });
 
     editor.ui.registry.addMenuItem('ohfilebrowser', {
       text: 'File Browser',
-      icon: 'image',
+      icon: 'browse',
       onAction: openDialog,
     });
 

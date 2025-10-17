@@ -2,29 +2,11 @@
 
 namespace OHMedia\WysiwygBundle\ContentLinks;
 
-class ContentLink
+use OHMedia\WysiwygBundle\TinyMCE\TreeItem;
+
+class ContentLink extends TreeItem
 {
     private string $shortcode = '';
-    private array $children = [];
-
-    public function __construct(private string $leafTitle, private ?string $linkText = null)
-    {
-    }
-
-    public function getLeafTitle(): string
-    {
-        return $this->leafTitle;
-    }
-
-    public function getLinkText(): ?string
-    {
-        return $this->linkText ?: $this->leafTitle;
-    }
-
-    public function getShortcode(): string
-    {
-        return $this->shortcode;
-    }
 
     public function setShortcode(string $shortcode): static
     {
@@ -34,21 +16,12 @@ class ContentLink
         return $this;
     }
 
-    public function getChildren(): array
+    public function getId(): string
     {
-        return $this->children;
-    }
-
-    public function hasChildren(): bool
-    {
-        return count($this->children) > 0;
-    }
-
-    public function setChildren(ContentLink ...$children): static
-    {
-        $this->children = $children;
-        $this->shortcode = '';
-
-        return $this;
+        return json_encode([
+            'href' => trim($this->shortcode, '{} '),
+            'title' => $this->getText(),
+            'text' => $this->getText(),
+        ]);
     }
 }

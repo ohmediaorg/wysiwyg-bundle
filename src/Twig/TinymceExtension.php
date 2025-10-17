@@ -19,6 +19,7 @@ class TinymceExtension extends AbstractExtension
         private array $menu,
         private string $toolbar,
         private array $linkClassList,
+        private array $imageClassList,
         array $allowedTags,
     ) {
         if (!$this->fileBrowser->isEnabled()) {
@@ -50,7 +51,8 @@ class TinymceExtension extends AbstractExtension
             'plugins' => $this->plugins,
             'menu' => $this->menu,
             'toolbar' => $this->toolbar,
-            'link_classes_list' => $this->linkClassList,
+            'link_class_list' => $this->linkClassList,
+            'image_class_list' => $this->imageClassList,
             'file_browser_enabled' => $this->fileBrowser->isEnabled(),
             'valid_elements' => $this->validElements,
         ]);

@@ -2,6 +2,8 @@
 
 namespace OHMedia\WysiwygBundle\ContentLinks;
 
+use OHMedia\WysiwygBundle\TinyMCE\TreeItemBuilder;
+
 class ContentLinkManager
 {
     private array $contentLinkProviders = [];
@@ -24,6 +26,8 @@ class ContentLinkManager
 
         $tabs = [];
 
+        $treeItemBuilder = new TreeItemBuilder();
+
         foreach ($this->contentLinkProviders as $i => $contentLinkProvider) {
             $contentLinkProvider->buildContentLinks();
 
@@ -33,7 +37,7 @@ class ContentLinkManager
                 continue;
             }
 
-            $items = $this->getTreeItems(...$contentLinks);
+            $items = $treeItemBuilder->getTreeItems(...$contentLinks);
 
             if (!$items) {
                 continue;
@@ -49,43 +53,5 @@ class ContentLinkManager
         }
 
         return $tabs;
-    }
-
-    private int $id = 0;
-
-    private function getTreeItems(ContentLink ...$contentLinks)
-    {
-        $treeItems = [];
-
-        foreach ($contentLinks as $contentLink) {
-            $leafTitle = $contentLink->getLeafTitle();
-
-            if ($contentLink->hasChildren()) {
-                $children = $this->getTreeItems(...$contentLink->getChildren());
-
-                if ($children) {
-                    $treeItems[] = [
-                        'type' => 'directory',
-                        'id' => 'directory_'.$this->id++,
-                        'title' => $leafTitle,
-                        'children' => $children,
-                    ];
-                }
-            } else {
-                $linkText = $contentLink->getLinkText();
-
-                $treeItems[] = [
-                    'type' => 'leaf',
-                    'title' => $leafTitle,
-                    'id' => json_encode([
-                        'href' => trim($contentLink->getShortcode(), '{} '),
-                        'title' => $linkText,
-                        'text' => $linkText,
-                    ]),
-                ];
-            }
-        }
-
-        return $treeItems;
     }
 }

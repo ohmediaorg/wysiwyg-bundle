@@ -6,3 +6,6 @@ window.initTinyMCEFilebrowserPlugin = initTinyMCEFilebrowserPlugin;
 
 import initTinyMCEContentlinkPlugin from './tinymce/contentlinks.js';
 window.initTinyMCEContentlinkPlugin = initTinyMCEContentlinkPlugin;
+
+import initTinyMCEImageBrowser from './tinymce/imagebrowser.js';
+window.initTinyMCEImageBrowser = initTinyMCEImageBrowser;

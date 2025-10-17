@@ -80,16 +80,21 @@ class Wysiwyg
             ->getSingleScalarResult() > 0;
     }
 
-    public function shortcodePlacements(string $shortcode): array
+    public function shortcodePlacements(string ...$shortcodes): array
     {
-        $shortcode = Shortcode::format($shortcode);
-
         $placements = [];
 
         foreach ($this->repositories as $repository) {
-            $entities = $repository->getShortcodeQueryBuilder($shortcode)
-                ->getQuery()
-                ->getResult();
+            $entities = [];
+
+            foreach ($shortcodes as $shortcode) {
+                $entities = array_merge(
+                    $entities,
+                    $repository->getShortcodeQueryBuilder($shortcode)
+                        ->getQuery()
+                        ->getResult()
+                );
+            }
 
             $links = [];
 
@@ -101,7 +106,7 @@ class Wysiwyg
 
                 $text = $repository->getShortcodeLinkText($entity);
 
-                $links[] = [
+                $links[$entity->getId()] = [
                     'href' => $href,
                     'text' => $text,
                 ];
@@ -117,7 +122,7 @@ class Wysiwyg
                     ];
                 }
 
-                $placements[$heading]['links'] += $links;
+                $placements[$heading]['links'] += array_values($links);
             }
         }
 
@@ -237,9 +242,11 @@ class Wysiwyg
                     // string surrounded by double-quotes
                     // give back a string escaped and surrounded by double-quotes
                     $arg = $dq.addslashes(trim($arg, $dq)).$dq;
+                } elseif ('null' === $arg) {
+                    // leave it
                 } else {
                     // not a string - force int
-                    $arg = intval($arg);
+                    $arg = abs(intval($arg));
                 }
 
                 $args[$i] = $arg;

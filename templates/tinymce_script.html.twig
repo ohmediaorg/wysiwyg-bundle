@@ -1,22 +1,15 @@
-<style>
-.tox-promotion,
-.tox-statusbar__branding {
-  visibility: hidden !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-</style>
-
 <script src="/backend/js/tinymce/tinymce.min.js"></script>
 
 <script async>
+const OH_MEDIA_FILE_BROWSER_ENABLED = {{ file_browser_enabled|js }};
 const OH_MEDIA_TINYMCE_PLUGINS = {{ plugins|js }};
 const OH_MEDIA_TINYMCE_MENU = {{ menu|js }};
 const OH_MEDIA_TINYMCE_TOOLBAR = {{ toolbar|js }};
-const OH_MEDIA_TINYMCE_LINK_CLASSES_LIST = {{ link_classes_list|js }};
+const OH_MEDIA_TINYMCE_LINK_CLASS_LIST = {{ link_class_list|js }};
+const OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST = {{ image_class_list|js }};
 const OH_MEDIA_TINYMCE_VALID_ELEMENTS = {{ valid_elements|js }};
+
+let OH_MEDIA_TINYMCE_IMAGEBROWSER = null;
 
 function OH_MEDIA_TINYMCE(container, selector) {
   const els = container.querySelectorAll(selector);
@@ -35,30 +28,46 @@ function OH_MEDIA_TINYMCE(container, selector) {
 
     const validElements = el.dataset.tinymceValidElements ?? OH_MEDIA_TINYMCE_VALID_ELEMENTS;
 
-    tinymce.init({
+    const tinymceOptions = {
       target: el,
+      license_key: 'gpl',
+      max_height: 600,
       plugins: plugins,
       menu: OH_MEDIA_TINYMCE_MENU,
       toolbar: OH_MEDIA_TINYMCE_TOOLBAR,
       toolbar_mode: 'wrap',
+      valid_elements: validElements,
+      promotion: false,
+
+      content_style: 'a.oh-tinymce-button { border:1px solid; padding:5px; }',
+      link_class_list: OH_MEDIA_TINYMCE_LINK_CLASS_LIST,
+
+      image_caption: true,
+      image_description: false,
+      image_class_list: OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST,
+      images_file_types: 'jpeg,jpg,png,gif,bmp,webp,svg',
+
       block_formats: [
-          'Paragraph=p',
-          'Heading 2=h2',
-          'Heading 3=h3',
-          'Heading 4=h4',
-          'Heading 5=h5',
-          'Heading 6=h6',
-          'Blockquote=blockquote',
-          'Div=div',
+        'Paragraph=p',
+        'Heading 2=h2',
+        'Heading 3=h3',
+        'Heading 4=h4',
+        'Heading 5=h5',
+        'Heading 6=h6',
+        'Blockquote=blockquote',
+        'Div=div',
       ].join(';'),
-      link_class_list: OH_MEDIA_TINYMCE_LINK_CLASSES_LIST,
+
+      // Drag/drop content cannot be filtered due to browser limitations
       paste_block_drop: true,
+
+      // No base64 strings
       paste_data_images: false,
+
       quickbars_insert_toolbar: false,
       quickbars_image_toolbar: false,
-      license_key: 'gpl',
-      max_height: 600,
-      valid_elements: validElements,
+
+      // url options
       document_base_url: '{{ app.request.baseUrl }}/',
       relative_urls: false,
       urlconverter_callback: function(url, node, on_save, name) {
@@ -97,18 +106,29 @@ function OH_MEDIA_TINYMCE(container, selector) {
 
         return url;
       },
-    });
+    };
+
+    if (OH_MEDIA_FILE_BROWSER_ENABLED) {
+      tinymceOptions.images_upload_url = "{{ path('tinymce_image_upload') }}";
+      tinymceOptions.file_picker_types = 'image';
+      tinymceOptions.file_picker_callback = function (callback, value, meta) {
+        OH_MEDIA_TINYMCE_IMAGEBROWSER.open(this, callback, value);
+      };
+    }
+
+    tinymce.init(tinymceOptions);
   });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  window.initTinyMCEShortcodesPlugin('{{ path('tinymce_shortcodes') }}');
+  window.initTinyMCEShortcodesPlugin("{{ path('tinymce_shortcodes') }}");
 
-  {% if file_browser_enabled %}
-  window.initTinyMCEFilebrowserPlugin('{{ path('tinymce_filebrowser') }}');
-  {% endif %}
+  if (OH_MEDIA_FILE_BROWSER_ENABLED) {
+    window.initTinyMCEFilebrowserPlugin("{{ path('tinymce_filebrowser') }}");
+    OH_MEDIA_TINYMCE_IMAGEBROWSER = window.initTinyMCEImageBrowser("{{ path('tinymce_imagebrowser') }}");
+  }
 
-  window.initTinyMCEContentlinkPlugin('{{ path('tinymce_contentlinks') }}');
+  window.initTinyMCEContentlinkPlugin("{{ path('tinymce_contentlinks') }}");
 
   OH_MEDIA_TINYMCE(document, 'textarea.tinymce');
 });

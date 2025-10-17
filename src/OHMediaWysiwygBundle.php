@@ -64,6 +64,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'charmap',
             'code',
             'directionality',
+            'image',
             'link',
             'lists',
             'table',
@@ -94,7 +95,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $menu['insert'] = [
             'title' => 'Insert',
-            'items' => 'link | charmap hr | anchor',
+            'items' => 'link image | charmap hr | anchor',
         ];
 
         $menu['format'] = [
@@ -119,7 +120,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $toolbar = [
             'undo redo',
-            'blocks ohshortcodes ohfilebrowser ohcontentlinks',
+            'blocks image ohfilebrowser ohshortcodes ohcontentlinks',
             'bold italic underline numlist bullist',
             'alignleft aligncenter alignright alignjustify',
             'outdent indent',
@@ -145,11 +146,34 @@ class OHMediaWysiwygBundle extends AbstractBundle
                     ->scalarNode('toolbar')
                         ->defaultValue(implode(' | ', $toolbar))
                     ->end()
-                    ->arrayNode('link_classes_list')
+                    ->arrayNode('link_class_list')
                         ->arrayPrototype()
                             ->children()
-                                ->scalarNode('title')->end()
-                                ->scalarNode('value')->end()
+                                ->scalarNode('title')
+                                    ->isRequired()
+                                    ->cannotBeEmpty()
+                                ->end()
+                                ->scalarNode('value')
+                                    ->isRequired()
+                                    ->cannotBeEmpty()
+                                ->end()
+                                ->booleanNode('button')
+                                    ->defaultTrue()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->arrayNode('image_class_list')
+                        ->arrayPrototype()
+                            ->children()
+                                ->scalarNode('title')
+                                    ->isRequired()
+                                    ->cannotBeEmpty()
+                                ->end()
+                                ->scalarNode('value')
+                                    ->isRequired()
+                                    ->cannotBeEmpty()
+                                ->end()
                             ->end()
                         ->end()
                     ->end()
@@ -175,11 +199,33 @@ class OHMediaWysiwygBundle extends AbstractBundle
 
         $containerConfigurator->parameters()->set('oh_media_wysiwyg.allowed_tags', $allowedTags);
 
+        foreach ($config['tinymce']['link_class_list'] as $i => $linkClass) {
+            if ($linkClass['button']) {
+                $config['tinymce']['link_class_list'][$i]['value'] .= ' oh-tinymce-button';
+            }
+        }
+
+        if ($config['tinymce']['link_class_list']) {
+            array_unshift($config['tinymce']['link_class_list'], [
+                'title' => 'None',
+                'value' => '',
+                'button' => false,
+            ]);
+        }
+
+        if ($config['tinymce']['image_class_list']) {
+            array_unshift($config['tinymce']['image_class_list'], [
+                'title' => 'None',
+                'value' => '',
+            ]);
+        }
+
         $containerConfigurator->parameters()
             ->set('oh_media_wysiwyg.tinymce.plugins', $config['tinymce']['plugins'])
             ->set('oh_media_wysiwyg.tinymce.menu', $config['tinymce']['menu'])
             ->set('oh_media_wysiwyg.tinymce.toolbar', $config['tinymce']['toolbar'])
-            ->set('oh_media_wysiwyg.tinymce.link_classes_list', $config['tinymce']['link_classes_list'])
+            ->set('oh_media_wysiwyg.tinymce.link_class_list', $config['tinymce']['link_class_list'])
+            ->set('oh_media_wysiwyg.tinymce.image_class_list', $config['tinymce']['image_class_list'])
         ;
 
         $containerBuilder->registerForAutoconfiguration(AbstractContentLinkProvider::class)
