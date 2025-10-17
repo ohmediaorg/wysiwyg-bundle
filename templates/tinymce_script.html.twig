@@ -39,7 +39,22 @@ function OH_MEDIA_TINYMCE(container, selector) {
       valid_elements: validElements,
       promotion: false,
 
-      content_style: 'a.oh-tinymce-button { border:1px solid; padding:5px; }',
+      content_style: `
+a.oh-tinymce-button {
+  border: 1px solid;
+  padding: 5px;
+}
+
+figure.align-left {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+figure.align-right {
+  margin-left: 8px;
+  margin-bottom: 8px;
+}
+`,
 
       image_caption: true,
       image_description: false,
