@@ -219,39 +219,15 @@ class Wysiwyg
 
         $replace = '{{'.$matches[2].'(';
 
-        $sq = "'";
-        $dq = '"';
-
         $last = count($matches) - 1;
 
         if (isset($matches[3]) && '(' === $matches[3]) {
             $args = array_slice($matches, 4, $last - 4);
 
-            if ($args) {
-                $args = implode('', $args);
-
-                $args = explode(',', $args);
-            }
+            $args = $this->parseArgs($args);
 
             foreach ($args as $i => $arg) {
-                $arg = trim($arg);
-
-                if (str_starts_with($arg, $sq) && str_ends_with($arg, $sq)) {
-                    // string surrounded by single-quotes
-                    // give back a string escaped and surrounded by double-quotes
-                    $arg = $dq.addslashes(trim($arg, $sq)).$dq;
-                } elseif (str_starts_with($arg, $dq) && str_ends_with($arg, $dq)) {
-                    // string surrounded by double-quotes
-                    // give back a string escaped and surrounded by double-quotes
-                    $arg = $dq.addslashes(trim($arg, $dq)).$dq;
-                } elseif ('null' === $arg) {
-                    // leave it
-                } else {
-                    // not a string - force int
-                    $arg = abs(intval($arg));
-                }
-
-                $args[$i] = $arg;
+                $args[$i] = $this->filterArg($arg);
             }
 
             $args = implode(', ', $args);
@@ -262,6 +238,90 @@ class Wysiwyg
         $replace .= ')}}';
 
         return $replace;
+    }
+
+    private function parseArgs(array $args): array
+    {
+        if (!$args) {
+            return [];
+        }
+
+        $return = [''];
+
+        $braceCount = 0;
+        $bracketCount = 0;
+
+        $argCount = 0;
+
+        // The Twig token stream will give an array of arguments and separators
+        // this is a way to reliably put it back together.
+        foreach ($args as $i => $arg) {
+            if ('{' === $arg) {
+                ++$braceCount;
+            } elseif ('}' === $arg) {
+                --$braceCount;
+            }
+
+            if ('[' === $arg) {
+                ++$bracketCount;
+            } elseif (']' === $arg) {
+                --$bracketCount;
+            }
+
+            if (',' === $arg && !$braceCount && !$bracketCount) {
+                // argument separator
+                ++$argCount;
+                $return[$argCount] = '';
+                continue;
+            }
+
+            $return[$argCount] .= $arg;
+        }
+
+        return $return;
+    }
+
+    private function filterArg(string $arg): mixed
+    {
+        $sq = "'";
+        $dq = '"';
+
+        $arg = trim($arg);
+
+        if (str_starts_with($arg, $sq) && str_ends_with($arg, $sq)) {
+            // string surrounded by single-quotes
+            // give back a string escaped and surrounded by double-quotes
+            $arg = $dq.addslashes(trim($arg, $sq)).$dq;
+        } elseif (str_starts_with($arg, $dq) && str_ends_with($arg, $dq)) {
+            // string surrounded by double-quotes
+            // give back a string escaped and surrounded by double-quotes
+            $arg = $dq.addslashes(trim($arg, $dq)).$dq;
+        } elseif (str_starts_with($arg, '{') && str_ends_with($arg, '}')) {
+            // potentially a JSON object
+            try {
+                $json = json_decode($arg);
+
+                // if the json_decode succeeded, we keep the argument
+            } catch (\Exception $e) {
+                $arg = 'null';
+            }
+        } elseif (str_starts_with($arg, '[') && str_ends_with($arg, ']')) {
+            // potentially a JSON array
+            try {
+                $json = json_decode($arg);
+
+                // if the json_decode succeeded, we keep the argument
+            } catch (\Exception $e) {
+                $arg = 'null';
+            }
+        } elseif ('null' === $arg) {
+            // leave it
+        } else {
+            // not a string - force int
+            $arg = abs(intval($arg));
+        }
+
+        return $arg;
     }
 
     private function buildBlockRegex(TokenStream $tokenStream): string
