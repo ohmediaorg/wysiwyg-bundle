@@ -69,7 +69,7 @@ class WysiwygType extends AbstractType
     {
         $data = $event->getData() ?? '';
 
-        preg_match_all('/{{file_href\(([^(]*)\)}}/', $data, $files, \PREG_SET_ORDER);
+        preg_match_all('/{{file_href\((.*)\)}}/', $data, $files, \PREG_SET_ORDER);
 
         foreach ($files as $file) {
             $shortcode = $file[0];
@@ -86,36 +86,66 @@ class WysiwygType extends AbstractType
             }
         }
 
-        preg_match_all('/{{image\(([^(]*)\)}}/', $data, $images, \PREG_SET_ORDER);
+        preg_match_all('/{{image\((.*)\)}}/', $data, $images, \PREG_SET_ORDER);
 
         foreach ($images as $image) {
             $shortcode = $image[0];
+
             $args = explode(',', $image[1]);
+            $argCount = count($args);
+
             $id = trim($args[0]);
+
             $width = isset($args[1]) ? trim($args[1]) : null;
             $height = isset($args[2]) ? trim($args[2]) : null;
 
+            $attributes = [];
+
+            if ($argCount > 3) {
+                // the 4th argument could be JSON encoded attributes
+                // which may have been incorrectly split by commas
+                // so we will concat the remaining args into a JSON string
+                $json = [];
+
+                for ($i = 3; $i < $argCount; ++$i) {
+                    $json[] = $args[$i];
+                }
+
+                $attributes = json_decode(implode(',', $json), true);
+            }
+
             $width = 'null' === $width ? null : (int) $width;
             $height = 'null' === $height ? null : (int) $height;
+
+            $class = $attributes['class'] ?? null;
+            $style = $attributes['style'] ?? null;
 
             $image = $this->fileRepository->find($args[0]);
 
             if ($image) {
                 $src = $this->fileManager->getWebPath($image);
 
-                $attributes = [
+                $attributeStrings = [
                     'src="'.$src.'"',
                 ];
 
                 if ($width) {
-                    $attributes[] = 'width="'.$width.'"';
+                    $attributeStrings[] = 'width="'.$width.'"';
                 }
 
                 if ($height) {
-                    $attributes[] = 'height="'.$height.'"';
+                    $attributeStrings[] = 'height="'.$height.'"';
                 }
 
-                $img = '<img '.implode(' ', $attributes).'>';
+                if ($class) {
+                    $attributeStrings[] = 'class="'.$class.'"';
+                }
+
+                if ($style) {
+                    $attributeStrings[] = 'style="'.$style.'"';
+                }
+
+                $img = '<img '.implode(' ', $attributeStrings).'>';
 
                 $data = str_replace($shortcode, $img, $data);
             }
@@ -130,8 +160,6 @@ class WysiwygType extends AbstractType
 
         foreach ($images as $image) {
             preg_match('/src="\/f\/([^\/]*)\/[^"]*"/', $image[0], $src);
-            preg_match('/width="([^"]*)"/', $image[0], $width);
-            preg_match('/height="([^"]*)"/', $image[0], $height);
 
             if (!$src) {
                 continue;
@@ -145,6 +173,9 @@ class WysiwygType extends AbstractType
                 continue;
             }
 
+            preg_match('/width="([^"]*)"/', $image[0], $width);
+            preg_match('/height="([^"]*)"/', $image[0], $height);
+
             $args = [$file->getId()];
 
             if ($width && $height) {
@@ -155,6 +186,28 @@ class WysiwygType extends AbstractType
             } elseif ($height) {
                 $args[] = 'null';
                 $args[] = $height[1];
+            }
+
+            preg_match('/style="([^"]*)"/', $image[0], $style);
+            preg_match('/class="([^"]*)"/', $image[0], $class);
+
+            $attributes = [];
+
+            if ($style) {
+                $attributes['style'] = $style[1];
+            }
+
+            if ($class) {
+                $attributes['class'] = $class[1];
+            }
+
+            if ($attributes) {
+                if (!$width && !$height) {
+                    $args[] = 'null';
+                    $args[] = 'null';
+                }
+
+                $args[] = json_encode($attributes);
             }
 
             $shortcode = '{{image('.implode(',', $args).')}}';
