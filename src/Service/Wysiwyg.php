@@ -146,6 +146,8 @@ class Wysiwyg
 
     public function render(string $wysiwyg, ?array $allowedTags = null, bool $allowShortcodes = true): string
     {
+        $wysiwyg = "<div class=\"wysiwyg-container\">$wysiwyg</div>";
+
         if (!$this->isValid($wysiwyg)) {
             // Invalid Twig Syntax
             // just return the string without the allowed HTML tags
