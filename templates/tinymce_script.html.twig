@@ -40,11 +40,9 @@ function OH_MEDIA_TINYMCE(container, selector) {
       promotion: false,
 
       content_style: 'a.oh-tinymce-button { border:1px solid; padding:5px; }',
-      link_class_list: OH_MEDIA_TINYMCE_LINK_CLASS_LIST,
 
       image_caption: true,
       image_description: false,
-      image_class_list: OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST,
       images_file_types: 'jpeg,jpg,png,gif,bmp,webp,svg',
 
       block_formats: [
@@ -114,6 +112,14 @@ function OH_MEDIA_TINYMCE(container, selector) {
       tinymceOptions.file_picker_callback = function (callback, value, meta) {
         OH_MEDIA_TINYMCE_IMAGEBROWSER.open(this, callback, value);
       };
+    }
+
+    if (OH_MEDIA_TINYMCE_LINK_CLASS_LIST.length) {
+      tinymceOptions.link_class_list = OH_MEDIA_TINYMCE_LINK_CLASS_LIST;
+    }
+
+    if (OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST.length) {
+      tinymceOptions.image_class_list = OH_MEDIA_TINYMCE_IMAGE_CLASS_LIST;
     }
 
     tinymce.init(tinymceOptions);
