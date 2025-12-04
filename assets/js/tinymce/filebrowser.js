@@ -27,7 +27,7 @@ function getBackRow(onclick) {
   const row = getRow();
 
   const col1 = getColumnOne();
-  col1.innerHTML = '<i class="bi bi-arrow-up-left-square-fill"></i>';
+  col1.innerHTML = '<i class="bi bi-arrow-left"></i>';
 
   row.append(col1);
 
@@ -88,7 +88,7 @@ function getImageRow(item, onclickLink) {
   col2.innerHTML = item.name + ' (ID:' + item.id + ')';
 
   if (item.locked) {
-    col2.innerHTML += '<i class="bi bi-lock-fill text-secondary"></i>';
+    col2.innerHTML += '<i class="bi bi-lock text-secondary"></i>';
   }
 
   row.append(col2);
@@ -110,10 +110,9 @@ function getFileRow(item, onclickLink) {
   const col1 = getColumnOne();
 
   if (item.locked) {
-    col1.innerHTML =
-      '<i class="bi bi-file-earmark-lock2-fill text-secondary"></i>';
+    col1.innerHTML = '<i class="bi bi-file-earmark-lock text-secondary"></i>';
   } else {
-    col1.innerHTML = '<i class="bi bi-file-earmark-fill"></i>';
+    col1.innerHTML = '<i class="bi bi-file-earmark"></i>';
   }
 
   row.append(col1);
@@ -122,7 +121,7 @@ function getFileRow(item, onclickLink) {
   col2.innerHTML = item.name + ' (ID:' + item.id + ')';
 
   if (item.locked) {
-    col2.innerHTML += '<i class="bi bi-lock-fill text-secondary"></i>';
+    col2.innerHTML += '<i class="bi bi-lock text-secondary"></i>';
   }
 
   row.append(col2);
