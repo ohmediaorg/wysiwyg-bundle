@@ -14,7 +14,7 @@ let OH_MEDIA_TINYMCE_IMAGEBROWSER = null;
 function OH_MEDIA_TINYMCE(container, selector) {
   const els = container.querySelectorAll(selector);
 
-  els.forEach(el => {
+  els.forEach(function(el) {
     el.required = false;
 
     let plugins = OH_MEDIA_TINYMCE_PLUGINS;
