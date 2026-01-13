@@ -5,47 +5,11 @@ services:
             - "@router"
             - "%oh_media_wysiwyg.allowed_tags%"
 
+    # alias used in WysiwygPass
     oh_media_wysiwyg.wysiwyg: '@OHMedia\WysiwygBundle\Service\Wysiwyg'
 
-    OHMedia\WysiwygBundle\Form\Type\WysiwygType:
-        autowire: true
-        tags: ["form.type"]
-
-    OHMedia\WysiwygBundle\Twig\WysiwygExtension:
-        arguments: ["@oh_media_wysiwyg.wysiwyg"]
-        tags: ["twig.extension"]
-
-    OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager:
-        ~
-
+    # alias used in ShortcodePass
     oh_media_wysiwyg.shortcode_manager: '@OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager'
 
-    OHMedia\WysiwygBundle\Controller\TinyMCEController:
-        tags: ["container.service_subscriber", "controller.service_arguments"]
-        autowire: true
-
-    OHMedia\WysiwygBundle\Controller\ShortcodeController:
-        tags: ["container.service_subscriber", "controller.service_arguments"]
-        autowire: true
-
-    OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager:
-        ~
-
+    # alias used in ContentLinkPass
     oh_media_wysiwyg.content_link_manager: '@OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager'
-
-    OHMedia\WysiwygBundle\Twig\ShortcodeExtension:
-        tags:
-            - { name: twig.extension }
-
-    OHMedia\WysiwygBundle\Twig\TinymceExtension:
-        arguments:
-          - "@oh_media_file.file_browser"
-          - "%oh_media_wysiwyg.tinymce.plugins%"
-          - "%oh_media_wysiwyg.tinymce.menu%"
-          - "%oh_media_wysiwyg.tinymce.toolbar%"
-          - "%oh_media_wysiwyg.tinymce.link_class_list%"
-          - "%oh_media_wysiwyg.tinymce.image_class_list%"
-          - "%oh_media_wysiwyg.allowed_tags%"
-        public: false
-        tags:
-            - { name: twig.extension }

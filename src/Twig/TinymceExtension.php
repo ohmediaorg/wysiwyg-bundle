@@ -4,6 +4,7 @@ namespace OHMedia\WysiwygBundle\Twig;
 
 use OHMedia\FileBundle\Service\FileBrowser;
 use OHMedia\WysiwygBundle\Util\HtmlTags;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -15,11 +16,17 @@ class TinymceExtension extends AbstractExtension
 
     public function __construct(
         private FileBrowser $fileBrowser,
+        #[Autowire('%oh_media_wysiwyg.tinymce.plugins%')]
         private string $plugins,
+        #[Autowire('%oh_media_wysiwyg.tinymce.menu%')]
         private array $menu,
+        #[Autowire('%oh_media_wysiwyg.tinymce.toolbar%')]
         private string $toolbar,
+        #[Autowire('%oh_media_wysiwyg.tinymce.link_class_list%')]
         private array $linkClassList,
+        #[Autowire('%oh_media_wysiwyg.tinymce.image_class_list%')]
         private array $imageClassList,
+        #[Autowire('%oh_media_wysiwyg.tinymce.allowed_tags%')]
         array $allowedTags,
     ) {
         if (!$this->fileBrowser->isEnabled()) {
