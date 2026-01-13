@@ -26,7 +26,7 @@ class TinymceExtension extends AbstractExtension
         private array $linkClassList,
         #[Autowire('%oh_media_wysiwyg.tinymce.image_class_list%')]
         private array $imageClassList,
-        #[Autowire('%oh_media_wysiwyg.tinymce.allowed_tags%')]
+        #[Autowire('%oh_media_wysiwyg.allowed_tags%')]
         array $allowedTags,
     ) {
         if (!$this->fileBrowser->isEnabled()) {

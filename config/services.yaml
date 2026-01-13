@@ -8,18 +8,3 @@ services:
         exclude:
             - '../src/Entity/'
             - '../src/OHMediaWysiwygBundle.php'
-
-    OHMedia\WysiwygBundle\Service\Wysiwyg:
-        arguments:
-            - "@twig"
-            - "@router"
-            - "%oh_media_wysiwyg.allowed_tags%"
-
-    # alias used in WysiwygPass
-    oh_media_wysiwyg.wysiwyg: '@OHMedia\WysiwygBundle\Service\Wysiwyg'
-
-    # alias used in ShortcodePass
-    oh_media_wysiwyg.shortcode_manager: '@OHMedia\WysiwygBundle\Shortcodes\ShortcodeManager'
-
-    # alias used in ContentLinkPass
-    oh_media_wysiwyg.content_link_manager: '@OHMedia\WysiwygBundle\ContentLinks\ContentLinkManager'
