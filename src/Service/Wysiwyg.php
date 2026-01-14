@@ -5,6 +5,7 @@ namespace OHMedia\WysiwygBundle\Service;
 use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Shortcodes\Shortcode;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 use Twig\Source;
@@ -19,6 +20,7 @@ class Wysiwyg
     public function __construct(
         private Environment $twig,
         private UrlGeneratorInterface $urlGenerator,
+        #[Autowire('%oh_media_wysiwyg.allowed_tags%')]
         private array $allowedTags,
     ) {
         $this->functions = [];
