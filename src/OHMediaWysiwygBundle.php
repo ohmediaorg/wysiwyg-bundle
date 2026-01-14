@@ -64,9 +64,11 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'charmap',
             'code',
             'directionality',
+            'fullscreen',
             'image',
             'link',
             'lists',
+            'advlist',
             'table',
             'ohshortcodes',
             'ohfilebrowser',
@@ -124,6 +126,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'bold italic underline numlist bullist',
             'alignleft aligncenter alignright alignjustify',
             'outdent indent',
+            'fullscreen',
         ];
 
         $definition->rootNode()
