@@ -245,7 +245,9 @@ export default function (imagebrowserUrl) {
             row = getImageRow(item, onclickImage);
           }
 
-          container.append(row);
+          if (row) {
+            container.append(row);
+          }
         });
       } catch (e) {
         console.log(e);
@@ -266,7 +268,7 @@ export default function (imagebrowserUrl) {
     }
 
     const savedUrl = localStorage.getItem(
-      'oh_media_wysiwyg_tinymce_imagebrowser_url'
+      'oh_media_wysiwyg_tinymce_imagebrowser_url',
     );
 
     populate(savedUrl ?? imagebrowserUrl);
