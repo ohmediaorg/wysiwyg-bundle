@@ -51,11 +51,16 @@ class OHMediaWysiwygBundle extends AbstractBundle
             ->end();
         }
 
-        $allowedTags->end()->end();
+        $allowedTags->end()->end()->end();
     }
 
     private function configureTinymce(DefinitionConfigurator $definition): void
     {
+        $tinymce = $definition->rootNode()
+            ->children()
+                ->arrayNode('tinymce')
+                    ->children();
+
         $plugins = [
             'anchor',
             'autolink',
@@ -77,6 +82,12 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'searchreplace',
             'visualblocks',
         ];
+
+        $tinymce->arrayNode('plugins')
+            ->acceptAndWrap(['string'])
+            ->scalarPrototype()->end()
+            ->defaultValue($plugins)
+        ->end();
 
         $menu = [];
 
@@ -120,6 +131,17 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'items' => '',
         ];
 
+        $tinymce->arrayNode('menu')
+            ->useAttributeAsKey('name')
+            ->defaultValue($menu)
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('title')->end()
+                    ->scalarNode('items')->end()
+                ->end()
+            ->end()
+        ->end();
+
         $toolbar = [
             'undo redo',
             'blocks image ohfilebrowser ohshortcodes ohcontentlinks',
@@ -129,66 +151,50 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'fullscreen',
         ];
 
-        $definition->rootNode()
-            ->children()
-                ->arrayNode('tinymce')
-                  ->children()
-                    ->scalarNode('plugins')
-                        ->defaultValue(implode(' ', $plugins))
+        $tinymce->scalarNode('toolbar')
+            ->defaultValue(implode(' | ', $toolbar))
+        ->end();
+
+        $tinymce->arrayNode('link_class_list')
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('title')
+                        ->isRequired()
+                        ->cannotBeEmpty()
                     ->end()
-                    ->arrayNode('menu')
-                        ->useAttributeAsKey('name')
-                        ->defaultValue($menu)
-                        ->arrayPrototype()
-                            ->children()
-                                ->scalarNode('title')->end()
-                                ->scalarNode('items')->end()
-                            ->end()
-                        ->end()
+                    ->scalarNode('value')
+                        ->isRequired()
+                        ->cannotBeEmpty()
                     ->end()
-                    ->scalarNode('toolbar')
-                        ->defaultValue(implode(' | ', $toolbar))
-                    ->end()
-                    ->arrayNode('link_class_list')
-                        ->arrayPrototype()
-                            ->children()
-                                ->scalarNode('title')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                                ->scalarNode('value')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                                ->booleanNode('button')
-                                    ->defaultTrue()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                    ->arrayNode('image_class_list')
-                        ->arrayPrototype()
-                            ->children()
-                                ->scalarNode('title')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                                ->scalarNode('value')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                            ->end()
-                        ->end()
+                    ->booleanNode('button')
+                        ->defaultTrue()
                     ->end()
                 ->end()
             ->end()
-        ;
+        ->end();
+
+        $tinymce->arrayNode('image_class_list')
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('title')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('value')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                ->end()
+            ->end()
+        ->end();
+
+        $tinymce->end()->end()->end();
     }
 
     public function loadExtension(
         array $config,
         ContainerConfigurator $containerConfigurator,
-        ContainerBuilder $containerBuilder
+        ContainerBuilder $containerBuilder,
     ): void {
         $containerConfigurator->import('../config/services.yaml');
 
@@ -224,7 +230,7 @@ class OHMediaWysiwygBundle extends AbstractBundle
         }
 
         $containerConfigurator->parameters()
-            ->set('oh_media_wysiwyg.tinymce.plugins', $config['tinymce']['plugins'])
+            ->set('oh_media_wysiwyg.tinymce.plugins', implode(' ', $config['tinymce']['plugins']))
             ->set('oh_media_wysiwyg.tinymce.menu', $config['tinymce']['menu'])
             ->set('oh_media_wysiwyg.tinymce.toolbar', $config['tinymce']['toolbar'])
             ->set('oh_media_wysiwyg.tinymce.link_class_list', $config['tinymce']['link_class_list'])
