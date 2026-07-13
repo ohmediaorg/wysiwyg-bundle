@@ -51,8 +51,6 @@ class OHMediaWysiwygBundle extends AbstractBundle
                 ->defaultFalse()
             ->end();
         }
-
-        $allowedTags->end()->end()->end();
     }
 
     private function configureTinymce(DefinitionConfigurator $definition): void
@@ -100,8 +98,6 @@ class OHMediaWysiwygBundle extends AbstractBundle
                 ->end()
             ->end()
         ->end();
-
-        $tinymce->end()->end()->end();
     }
 
     private function configureTinymcePlugins(NodeBuilder $tinymce): void
@@ -132,6 +128,12 @@ class OHMediaWysiwygBundle extends AbstractBundle
             ->acceptAndWrap(['string'])
             ->scalarPrototype()->end()
             ->defaultValue($plugins)
+        ->end();
+
+        $tinymce->arrayNode('plugins_extra')
+            ->acceptAndWrap(['string'])
+            ->scalarPrototype()->end()
+            ->defaultValue([])
         ->end();
     }
 
@@ -180,13 +182,16 @@ class OHMediaWysiwygBundle extends AbstractBundle
         ];
 
         $menuConfig = $tinymce->arrayNode('menu')
+            ->addDefaultsIfNotSet()
             ->children();
 
         foreach ($menus as $key => $menu) {
             $menuConfig->arrayNode($key)
+                ->addDefaultsIfNotSet()
                 ->children()
                     ->scalarNode('title')
                         ->defaultValue($menu['title'])
+                        ->cannotBeEmpty()
                     ->end()
                     ->scalarNode('items')
                         ->defaultValue($menu['items'])
@@ -194,10 +199,6 @@ class OHMediaWysiwygBundle extends AbstractBundle
                 ->end()
             ->end();
         }
-
-        $menuConfig->end();
-
-        $tinymce->end();
     }
 
     private function configureTinymceToolbar(NodeBuilder $tinymce): void
@@ -211,8 +212,10 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'fullscreen',
         ];
 
-        $tinymce->scalarNode('toolbar')
-            ->defaultValue(implode(' | ', $toolbar))
+        $tinymce->arrayNode('toolbar')
+            ->acceptAndWrap(['string'])
+            ->scalarPrototype()->end()
+            ->defaultValue($toolbar)
         ->end();
     }
 
@@ -254,12 +257,15 @@ class OHMediaWysiwygBundle extends AbstractBundle
             ]);
         }
 
-        var_dump($config['tinymce']);
+        $plugins = array_unique(array_merge(
+            $config['tinymce']['plugins'],
+            $config['tinymce']['plugins_extra']
+        ));
 
         $containerConfigurator->parameters()
-            ->set('oh_media_wysiwyg.tinymce.plugins', implode(' ', $config['tinymce']['plugins']))
+            ->set('oh_media_wysiwyg.tinymce.plugins', implode(' ', $plugins))
             ->set('oh_media_wysiwyg.tinymce.menu', $config['tinymce']['menu'])
-            ->set('oh_media_wysiwyg.tinymce.toolbar', $config['tinymce']['toolbar'])
+            ->set('oh_media_wysiwyg.tinymce.toolbar', implode(' | ', $config['tinymce']['toolbar']))
             ->set('oh_media_wysiwyg.tinymce.link_class_list', $config['tinymce']['link_class_list'])
             ->set('oh_media_wysiwyg.tinymce.image_class_list', $config['tinymce']['image_class_list'])
         ;
