@@ -10,6 +10,7 @@ use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Shortcodes\AbstractShortcodeProvider;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
 use OHMedia\WysiwygBundle\Util\HtmlTags;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -61,99 +62,11 @@ class OHMediaWysiwygBundle extends AbstractBundle
                 ->arrayNode('tinymce')
                     ->children();
 
-        $plugins = [
-            'anchor',
-            'autolink',
-            'autoresize',
-            'autosave',
-            'charmap',
-            'code',
-            'directionality',
-            'fullscreen',
-            'image',
-            'link',
-            'lists',
-            'advlist',
-            'table',
-            'ohshortcodes',
-            'ohfilebrowser',
-            'ohcontentlinks',
-            'quickbars',
-            'searchreplace',
-            'visualblocks',
-        ];
+        $this->configureTinymcePlugins($tinymce);
 
-        $tinymce->arrayNode('plugins')
-            ->acceptAndWrap(['string'])
-            ->scalarPrototype()->end()
-            ->defaultValue($plugins)
-        ->end();
+        $this->configureTinymceMenu($tinymce);
 
-        $menu = [];
-
-        $menu['file'] = [
-            'title' => 'File',
-            'items' => '',
-        ];
-
-        $menu['edit'] = [
-            'title' => 'Edit',
-            'items' => 'undo redo | cut copy paste pastetext | selectall | searchreplace',
-        ];
-
-        $menu['view'] = [
-            'title' => 'View',
-            'items' => 'code | visualblocks',
-        ];
-
-        $menu['insert'] = [
-            'title' => 'Insert',
-            'items' => 'link image | charmap hr | anchor',
-        ];
-
-        $menu['format'] = [
-            'title' => 'Format',
-            'items' => 'bold italic underline strikethrough superscript subscript codeformat | removeformat',
-        ];
-
-        $menu['tools'] = [
-            'title' => 'Tools',
-            'items' => '',
-        ];
-
-        $menu['table'] = [
-            'title' => 'Table',
-            'items' => 'inserttable | cell row column | advtablesort | tableprops deletetable',
-        ];
-
-        $menu['help'] = [
-            'title' => 'Help',
-            'items' => '',
-        ];
-
-        $tinymce->arrayNode('menu')
-            ->useAttributeAsKey('name')
-            ->defaultValue($menu)
-            ->arrayPrototype()
-                ->children()
-                    ->scalarNode('title')->end()
-                    ->scalarNode('items')->end()
-                ->end()
-            ->end()
-        ->end();
-
-        $toolbar = [
-            'undo redo',
-            'blocks image ohfilebrowser ohshortcodes ohcontentlinks',
-            'bold italic underline numlist bullist',
-            'alignleft aligncenter alignright alignjustify',
-            'outdent indent',
-            'fullscreen',
-        ];
-
-        $tinymce->scalarNode('toolbar')
-            ->defaultValue(implode(' | ', $toolbar))
-        ->end();
+        $this->configureTinymceToolbar($tinymce);
 
         $tinymce->arrayNode('link_class_list')
             ->arrayPrototype()
@@ -189,6 +102,118 @@ class OHMediaWysiwygBundle extends AbstractBundle
         ->end();
 
         $tinymce->end()->end()->end();
+    }
+
+    private function configureTinymcePlugins(NodeBuilder $tinymce): void
+    {
+        $plugins = [
+            'anchor',
+            'autolink',
+            'autoresize',
+            'autosave',
+            'charmap',
+            'code',
+            'directionality',
+            'fullscreen',
+            'image',
+            'link',
+            'lists',
+            'advlist',
+            'table',
+            'ohshortcodes',
+            'ohfilebrowser',
+            'ohcontentlinks',
+            'quickbars',
+            'searchreplace',
+            'visualblocks',
+        ];
+
+        $tinymce->arrayNode('plugins')
+            ->acceptAndWrap(['string'])
+            ->scalarPrototype()->end()
+            ->defaultValue($plugins)
+        ->end();
+    }
+
+    private function configureTinymceMenu(NodeBuilder $tinymce): void
+    {
+        $menus = [];
+
+        $menus['file'] = [
+            'title' => 'File',
+            'items' => '',
+        ];
+
+        $menus['edit'] = [
+            'title' => 'Edit',
+            'items' => 'undo redo | cut copy paste pastetext | selectall | searchreplace',
+        ];
+
+        $menus['view'] = [
+            'title' => 'View',
+            'items' => 'code | visualblocks',
+        ];
+
+        $menus['insert'] = [
+            'title' => 'Insert',
+            'items' => 'link image | charmap hr | anchor',
+        ];
+
+        $menus['format'] = [
+            'title' => 'Format',
+            'items' => 'bold italic underline strikethrough superscript subscript codeformat | removeformat',
+        ];
+
+        $menus['tools'] = [
+            'title' => 'Tools',
+            'items' => '',
+        ];
+
+        $menus['table'] = [
+            'title' => 'Table',
+            'items' => 'inserttable | cell row column | advtablesort | tableprops deletetable',
+        ];
+
+        $menus['help'] = [
+            'title' => 'Help',
+            'items' => '',
+        ];
+
+        $menuConfig = $tinymce->arrayNode('menu')
+            ->children();
+
+        foreach ($menus as $key => $menu) {
+            $menuConfig->arrayNode($key)
+                ->children()
+                    ->scalarNode('title')
+                        ->defaultValue($menu['title'])
+                    ->end()
+                    ->scalarNode('items')
+                        ->defaultValue($menu['items'])
+                    ->end()
+                ->end()
+            ->end();
+        }
+
+        $menuConfig->end();
+
+        $tinymce->end();
+    }
+
+    private function configureTinymceToolbar(NodeBuilder $tinymce): void
+    {
+        $toolbar = [
+            'undo redo',
+            'blocks image ohfilebrowser ohshortcodes ohcontentlinks',
+            'bold italic underline numlist bullist',
+            'alignleft aligncenter alignright alignjustify',
+            'outdent indent',
+            'fullscreen',
+        ];
+
+        $tinymce->scalarNode('toolbar')
+            ->defaultValue(implode(' | ', $toolbar))
+        ->end();
     }
 
     public function loadExtension(
@@ -228,6 +253,8 @@ class OHMediaWysiwygBundle extends AbstractBundle
                 'value' => '',
             ]);
         }
+
+        var_dump($config['tinymce']);
 
         $containerConfigurator->parameters()
             ->set('oh_media_wysiwyg.tinymce.plugins', implode(' ', $config['tinymce']['plugins']))
