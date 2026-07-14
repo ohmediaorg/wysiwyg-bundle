@@ -10,6 +10,7 @@ use OHMedia\WysiwygBundle\Repository\WysiwygRepositoryInterface;
 use OHMedia\WysiwygBundle\Shortcodes\AbstractShortcodeProvider;
 use OHMedia\WysiwygBundle\Twig\AbstractWysiwygExtension;
 use OHMedia\WysiwygBundle\Util\HtmlTags;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -50,11 +51,56 @@ class OHMediaWysiwygBundle extends AbstractBundle
                 ->defaultFalse()
             ->end();
         }
-
-        $allowedTags->end()->end();
     }
 
     private function configureTinymce(DefinitionConfigurator $definition): void
+    {
+        $tinymce = $definition->rootNode()
+            ->children()
+                ->arrayNode('tinymce')
+                    ->children();
+
+        $this->configureTinymcePlugins($tinymce);
+
+        $this->configureTinymceMenu($tinymce);
+
+        $this->configureTinymceToolbar($tinymce);
+
+        $tinymce->arrayNode('link_class_list')
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('title')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('value')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->booleanNode('button')
+                        ->defaultTrue()
+                    ->end()
+                ->end()
+            ->end()
+        ->end();
+
+        $tinymce->arrayNode('image_class_list')
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('title')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('value')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                ->end()
+            ->end()
+        ->end();
+    }
+
+    private function configureTinymcePlugins(NodeBuilder $tinymce): void
     {
         $plugins = [
             'anchor',
@@ -78,48 +124,85 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'visualblocks',
         ];
 
-        $menu = [];
+        $tinymce->arrayNode('plugins')
+            ->acceptAndWrap(['string'])
+            ->scalarPrototype()->end()
+            ->defaultValue($plugins)
+        ->end();
 
-        $menu['file'] = [
+        $tinymce->arrayNode('plugins_extra')
+            ->acceptAndWrap(['string'])
+            ->scalarPrototype()->end()
+            ->defaultValue([])
+        ->end();
+    }
+
+    private function configureTinymceMenu(NodeBuilder $tinymce): void
+    {
+        $menus = [];
+
+        $menus['file'] = [
             'title' => 'File',
             'items' => '',
         ];
 
-        $menu['edit'] = [
+        $menus['edit'] = [
             'title' => 'Edit',
             'items' => 'undo redo | cut copy paste pastetext | selectall | searchreplace',
         ];
 
-        $menu['view'] = [
+        $menus['view'] = [
             'title' => 'View',
             'items' => 'code | visualblocks',
         ];
 
-        $menu['insert'] = [
+        $menus['insert'] = [
             'title' => 'Insert',
             'items' => 'link image | charmap hr | anchor',
         ];
 
-        $menu['format'] = [
+        $menus['format'] = [
             'title' => 'Format',
             'items' => 'bold italic underline strikethrough superscript subscript codeformat | removeformat',
         ];
 
-        $menu['tools'] = [
+        $menus['tools'] = [
             'title' => 'Tools',
             'items' => '',
         ];
 
-        $menu['table'] = [
+        $menus['table'] = [
             'title' => 'Table',
             'items' => 'inserttable | cell row column | advtablesort | tableprops deletetable',
         ];
 
-        $menu['help'] = [
+        $menus['help'] = [
             'title' => 'Help',
             'items' => '',
         ];
 
+        $menuConfig = $tinymce->arrayNode('menu')
+            ->addDefaultsIfNotSet()
+            ->children();
+
+        foreach ($menus as $key => $menu) {
+            $menuConfig->arrayNode($key)
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->scalarNode('title')
+                        ->defaultValue($menu['title'])
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('items')
+                        ->defaultValue($menu['items'])
+                    ->end()
+                ->end()
+            ->end();
+        }
+    }
+
+    private function configureTinymceToolbar(NodeBuilder $tinymce): void
+    {
         $toolbar = [
             'undo redo',
             'blocks image ohfilebrowser ohshortcodes ohcontentlinks',
@@ -129,66 +212,17 @@ class OHMediaWysiwygBundle extends AbstractBundle
             'fullscreen',
         ];
 
-        $definition->rootNode()
-            ->children()
-                ->arrayNode('tinymce')
-                  ->children()
-                    ->scalarNode('plugins')
-                        ->defaultValue(implode(' ', $plugins))
-                    ->end()
-                    ->arrayNode('menu')
-                        ->useAttributeAsKey('name')
-                        ->defaultValue($menu)
-                        ->arrayPrototype()
-                            ->children()
-                                ->scalarNode('title')->end()
-                                ->scalarNode('items')->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                    ->scalarNode('toolbar')
-                        ->defaultValue(implode(' | ', $toolbar))
-                    ->end()
-                    ->arrayNode('link_class_list')
-                        ->arrayPrototype()
-                            ->children()
-                                ->scalarNode('title')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                                ->scalarNode('value')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                                ->booleanNode('button')
-                                    ->defaultTrue()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                    ->arrayNode('image_class_list')
-                        ->arrayPrototype()
-                            ->children()
-                                ->scalarNode('title')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                                ->scalarNode('value')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-        ;
+        $tinymce->arrayNode('toolbar')
+            ->acceptAndWrap(['string'])
+            ->scalarPrototype()->end()
+            ->defaultValue($toolbar)
+        ->end();
     }
 
     public function loadExtension(
         array $config,
         ContainerConfigurator $containerConfigurator,
-        ContainerBuilder $containerBuilder
+        ContainerBuilder $containerBuilder,
     ): void {
         $containerConfigurator->import('../config/services.yaml');
 
@@ -223,10 +257,15 @@ class OHMediaWysiwygBundle extends AbstractBundle
             ]);
         }
 
+        $plugins = array_unique(array_merge(
+            $config['tinymce']['plugins'],
+            $config['tinymce']['plugins_extra']
+        ));
+
         $containerConfigurator->parameters()
-            ->set('oh_media_wysiwyg.tinymce.plugins', $config['tinymce']['plugins'])
+            ->set('oh_media_wysiwyg.tinymce.plugins', implode(' ', $plugins))
             ->set('oh_media_wysiwyg.tinymce.menu', $config['tinymce']['menu'])
-            ->set('oh_media_wysiwyg.tinymce.toolbar', $config['tinymce']['toolbar'])
+            ->set('oh_media_wysiwyg.tinymce.toolbar', implode(' | ', $config['tinymce']['toolbar']))
             ->set('oh_media_wysiwyg.tinymce.link_class_list', $config['tinymce']['link_class_list'])
             ->set('oh_media_wysiwyg.tinymce.image_class_list', $config['tinymce']['image_class_list'])
         ;
