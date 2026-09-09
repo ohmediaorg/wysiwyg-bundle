@@ -204,7 +204,7 @@ export default function (filesUrl) {
         const linkText = selectedText ? selectedText : item.name;
 
         editor.insertContent(
-          `<a href="${item.path}" title="${item.name}" target="_blank">${linkText}</a>`
+          `<a href="${item.path}" title="${item.name}" target="_blank">${linkText}</a>`,
         );
 
         dialog.close();
@@ -309,7 +309,7 @@ export default function (filesUrl) {
       }
 
       const savedUrl = localStorage.getItem(
-        'oh_media_wysiwyg_tinymce_filebrowser_url'
+        'oh_media_wysiwyg_tinymce_filebrowser_url',
       );
 
       populateFiles(savedUrl ?? filesUrl);
@@ -331,7 +331,7 @@ export default function (filesUrl) {
     return {
       getMetadata: () => ({
         name: 'File Browser',
-        url: 'mailto:support@ohmedia.ca',
+        url: 'mailto:support@thephoenixgroup.ca',
       }),
     };
   });

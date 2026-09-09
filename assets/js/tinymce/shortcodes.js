@@ -88,7 +88,7 @@ export default function (shortcodeUrl) {
     return {
       getMetadata: () => ({
         name: 'Shortcodes',
-        url: 'mailto:support@ohmedia.ca',
+        url: 'mailto:support@thephoenixgroup.ca',
       }),
     };
   });

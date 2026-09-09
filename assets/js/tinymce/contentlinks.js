@@ -29,7 +29,7 @@ export default function (contentlinkUrl) {
             const linkText = selectedText ? selectedText : data.text;
 
             editor.insertContent(
-              `<a href="{{${data.href}}}" title="${data.title}">${linkText}</a>`
+              `<a href="{{${data.href}}}" title="${data.title}">${linkText}</a>`,
             );
           }
 
@@ -104,7 +104,7 @@ export default function (contentlinkUrl) {
     return {
       getMetadata: () => ({
         name: 'Content Links',
-        url: 'mailto:support@ohmedia.ca',
+        url: 'mailto:support@thephoenixgroup.ca',
       }),
     };
   });
