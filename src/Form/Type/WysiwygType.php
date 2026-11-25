@@ -69,7 +69,7 @@ class WysiwygType extends AbstractType
     {
         $data = $event->getData() ?? '';
 
-        preg_match_all('/{{file_href\((.*)\)}}/', $data, $files, \PREG_SET_ORDER);
+        preg_match_all('/{{file_href\(([^\)]*)\)}}/', $data, $files, \PREG_SET_ORDER);
 
         foreach ($files as $file) {
             $shortcode = $file[0];
@@ -86,7 +86,7 @@ class WysiwygType extends AbstractType
             }
         }
 
-        preg_match_all('/{{image\((.*)\)}}/', $data, $images, \PREG_SET_ORDER);
+        preg_match_all('/{{image\(([^\)]*)\)}}/', $data, $images, \PREG_SET_ORDER);
 
         foreach ($images as $image) {
             $shortcode = $image[0];
